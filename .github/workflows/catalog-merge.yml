@@ -1,0 +1,41 @@
+# Records the review of a merged submission: scan at the merged state, status approved.
+name: Catalog merge
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "catalog/repositories/**"
+
+permissions:
+  contents: write
+  actions: write
+  pull-requests: read
+
+concurrency:
+  group: catalog-write
+  cancel-in-progress: false
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          # Deploy key allowed to bypass the main ruleset (personal repos cannot
+          # let GITHUB_TOKEN bypass it). Never exposed to pull_request runs.
+          ssh-key: ${{ secrets.CATALOG_DEPLOY_KEY }}
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - run: pip install pyyaml==6.0.3
+      - name: Scan and record new entries
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BEFORE: ${{ github.event.before }}
+        run: bash .github/scripts/merge-record.sh
+      - run: gh workflow run pages.yml --ref main
+        env:
+          GH_TOKEN: ${{ github.token }}

@@ -1,0 +1,66 @@
+# Runs on untrusted pull requests: read-only token, no secrets.
+# The validator and scanner come from the base branch; the PR only provides data.
+name: Catalog PR
+
+on:
+  pull_request:
+    paths:
+      - "catalog/**"
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  scan:
+    name: Validate and scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout trusted tools (base branch)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: trusted
+          persist-credentials: false
+      - name: Checkout pull request (data only)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: pr
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - run: pip install pyyaml==6.0.3
+      - name: Validate
+        id: validate
+        working-directory: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+          PYTHONPATH: ${{ github.workspace }}/trusted
+        run: bash ../trusted/.github/scripts/pr-validate.sh
+      - name: Scan
+        if: steps.validate.outputs.repository != ''
+        env:
+          REPOSITORY: ${{ steps.validate.outputs.repository }}
+          PYTHONPATH: ${{ github.workspace }}/trusted
+        run: |
+          python -m tools.catalog scan "$REPOSITORY" --dynamic --out out/scan.json
+          python -m tools.catalog report --scan out/scan.json --errors out/errors.json --out out/report.md
+      - name: Report without scan
+        if: steps.validate.outputs.repository == ''
+        run: python trusted/.github/scripts/errors-report.py out/errors.json out/report.md
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: report
+          path: |
+            out/report.md
+            out/pr_number.txt
+      - name: Fail on blocking errors
+        if: steps.validate.outputs.ok != 'true'
+        run: |
+          echo "::error::Submission rules not met, see the report comment."
+          exit 1
