@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Community Apps",
-        "description": "Adds a **Community Apps** page to the sidebar (administrators only) to browse a community catalog of third-party apps and add their repositories to the app store.\n\nEach repository was reviewed by a person when it entered the catalog and is rescanned automatically when it changes. The review lists signals (permissions, domains contacted); it does not prove an app is harmless."
+        "description": "Adds a **Community Apps** page to the sidebar (administrators only) to browse a community catalog of third-party apps and add their repositories to the app store.\n\nRepositories are listed after a maintainer read an automated scan report, and rescanned automatically when they change. The report lists signals (permissions, domains contacted); it does not prove an app is harmless.\n\n**No warranty. Apps are third-party software; you install them at your own risk. Being listed is not an endorsement.**"
       }
     },
     "abort": {

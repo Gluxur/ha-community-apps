@@ -74,3 +74,29 @@ def test_group_by_risk_and_repository_and_none():
 def test_sort_by_status_and_repository():
     assert run(f"sortRows({R}, 'status', NOW).map(r => r.app.name)") == ["Flagged", "Inst", "Added", "Fresh", "Old"]
     assert run(f"sortRows({R}, 'repository', NOW).map(r => r.app.name)") == ["Flagged", "Added", "Inst", "Fresh", "Old"]
+
+
+def test_missing_risk_is_low_for_filter_group_and_sort():
+    rows = json.dumps([{"repo": repo("x/y"), "app": {"slug": "n", "name": "NoRisk", "compatible": True}}])
+    assert run(f"filterRows({rows}, {{risk: ['low']}}, '', NOW).length") == 1
+    assert run(f"groupRows({rows}, 'risk', NOW).map(g => g.key)") == ["low"]
+    assert run(f"riskOf({{}})") == "low"
+
+
+def test_icon_url_pinned_to_reviewed_commit():
+    r = {"repository": "Owner/Repo", "scan": {"commit": "abc123"}}
+    assert run(f"iconUrl({json.dumps(r)}, {{path: 'my app'}})") == "https://raw.githubusercontent.com/Owner/Repo/abc123/my%20app/icon.png"
+    assert run(f"iconUrl({json.dumps(r)}, {{path: '.'}})") == "https://raw.githubusercontent.com/Owner/Repo/abc123/icon.png"
+    assert run("iconUrl({repository: 'O/R'}, {path: 'a'})") is None
+    assert run(f"iconUrl({json.dumps(r)}, {{path: '../x'}})") is None
+
+
+def test_default_filters_show_only_compatible_apps():
+    assert run("defaultFilters()") == {"status": [], "risk": [], "source": [], "compatible": True}
+
+
+def test_status_uses_precomputed_value():
+    rows = json.dumps([{"repo": repo("a/a"), "app": app("A"), "status": "installed"},
+                       {"repo": repo("b/b"), "app": app("B"), "status": "flagged"}])
+    assert run(f"sortRows({rows}, 'status', NOW).map(r => r.app.name)") == ["B", "A"]
+    assert run(f"filterRows({rows}, {{status: ['installed']}}, '', NOW).map(r => r.app.name)") == ["A"]
