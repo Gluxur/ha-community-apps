@@ -1,2 +1,123 @@
 repository: dianlight/hassio-addons
 added_by: catalog
+status: approved
+reviewed:
+  by: Gluxur
+  at: '2026-11-15'
+  commit: 94aede424129fa273ac54086600e9a02b0626d83
+scan:
+  commit: 94aede424129fa273ac54086600e9a02b0626d83
+  at: '2026-11-15T16:24:30Z'
+  apps:
+  - path: RPiMySensor
+    slug: rpi-mysensor-gw
+    name: RPi MySensor Gateway
+    version: 0.0.25
+    arch:
+    - armhf
+    - armv7
+    image: source
+    permissions:
+    - apparmor_disabled
+    - devices
+    - gpio
+    - hassio_api
+    - kernel_modules
+    - map_rw:config
+    - map_rw:share
+    - map_rw:ssl
+    - privileged
+    - uart
+    risk: high
+    domains:
+    - www.mysensors.org
+    error: null
+    dynamic: skipped
+  - path: plex
+    slug: plex
+    name: Plex Media Server with NAS | Deprecated
+    version: 2.4.2-dht3
+    arch:
+    - aarch64
+    - amd64
+    - armv7
+    - i386
+    image: prebuilt
+    permissions:
+    - full_access
+    - hassio_api
+    - map_rw:media
+    - map_rw:share
+    - privileged
+    risk: high
+    domains: []
+    error: null
+    dynamic: failed
+  - path: sambanas
+    slug: sambanas
+    name: Samba NAS
+    version: 12.5.0-nas
+    arch:
+    - armv7
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - full_access
+    - hassio_api
+    - hassio_role:admin
+    - homeassistant_api
+    - host_dbus
+    - host_network
+    - kernel_modules
+    - map_rw:addon_config
+    - map_rw:addons
+    - map_rw:all_addon_configs
+    - map_rw:backup
+    - map_rw:config
+    - map_rw:media
+    - map_rw:share
+    - map_rw:ssl
+    - privileged
+    risk: high
+    domains:
+    - wheels.home-assistant.io
+    error: null
+    dynamic: started
+  - path: sambanas2
+    slug: sambanas2
+    name: Samba NAS2
+    version: 2026.10.1
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - full_access
+    - hassio_api
+    - hassio_role:admin
+    - homeassistant_api
+    - host_dbus
+    - host_network
+    - kernel_modules
+    - map_rw:all_app_configs
+    - map_rw:app_config
+    - map_rw:backup
+    - map_rw:config
+    - map_rw:local_apps
+    - map_rw:media
+    - map_rw:share
+    - map_rw:ssl
+    - privileged
+    risk: high
+    domains:
+    - api.github.com
+    - dl-cdn.alpinelinux.org
+    - download.samba.org
+    - schemas.microsoft.com
+    - schemas.xmlsoap.org
+    - semver.org
+    - wheels.home-assistant.io
+    - www.gershnik.com
+    error: null
+    dynamic: started
