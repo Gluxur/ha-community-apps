@@ -1,2 +1,71 @@
 repository: pbkhrv/rtl_433-hass-addons
 added_by: catalog
+status: approved
+reviewed:
+  by: Gluxur
+  at: '2026-11-15'
+  commit: ad9a982703a59703ed5f8085ef7cf69e57275345
+scan:
+  commit: ad9a982703a59703ed5f8085ef7cf69e57275345
+  at: '2026-11-15T17:17:48Z'
+  apps:
+  - path: rtl_433
+    slug: rtl433
+    name: rtl_433
+    description: Receive wireless sensor data via an SDR dongle and rtl_433
+    version: 0.7.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - map_rw:config
+    - usb
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: rtl_433-next
+    slug: rtl433-next
+    name: rtl_433 (next)
+    description: Receive wireless sensor data via an SDR dongle and rtl_433
+    version: next
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - map_rw:config
+    - usb
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: rtl_433_mqtt_autodiscovery
+    slug: rtl433mqttautodiscovery
+    name: rtl_433 MQTT Auto Discovery
+    description: Automatic discovery of rtl_433 device information via MQTT
+    version: 0.10.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions: []
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: rtl_433_mqtt_autodiscovery-next
+    slug: rtl433mqttautodiscovery-next
+    name: rtl_433 MQTT Auto Discovery (next)
+    description: Automatic discovery of rtl_433 device information via MQTT
+    version: next
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions: []
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
