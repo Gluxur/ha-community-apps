@@ -1,2 +1,41 @@
 repository: saihgupr/HomeAssistantTimeMachine
 added_by: catalog
+status: approved
+reviewed:
+  by: Gluxur
+  at: '2026-11-15'
+  commit: aa96294668480dace9a9a01fdd80dd8bdc556111
+scan:
+  commit: aa96294668480dace9a9a01fdd80dd8bdc556111
+  at: '2026-11-15T17:24:21Z'
+  apps:
+  - path: homeassistant-time-machine
+    slug: homeassistant-time-machine
+    name: Home Assistant Time Machine
+    description: Browse and restore Home Assistant configuration backups
+    version: 2.4.3
+    arch:
+    - amd64
+    - aarch64
+    image: source
+    permissions:
+    - hassio_api
+    - homeassistant_api
+    - map_rw:addons
+    - map_rw:backup
+    - map_rw:config
+    - map_rw:media
+    - map_rw:share
+    - map_rw:ssl
+    risk: medium
+    domains:
+    - cdn.jsdelivr.net
+    - feross.org
+    - fonts.googleapis.com
+    - fonts.gstatic.com
+    - ko-fi.com
+    - opencollective.com
+    - registry.npmjs.org
+    - www.patreon.com
+    error: null
+    dynamic: started
