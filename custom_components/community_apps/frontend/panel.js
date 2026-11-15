@@ -31,10 +31,12 @@ const MAP_LABELS = {
 };
 const RISK_ORDER = { high: 0, medium: 1, low: 2 };
 const SORTS = {
-  stars: "GitHub stars",
-  updated: "Recent activity",
-  name: "Name",
-  risk: "Risk (highest first)",
+  name: "App name",
+  stars: "Stars",
+  updated: "Activity",
+  risk: "Risk",
+  status: "Status",
+  repository: "Repository",
 };
 
 const byName = (a, b) => String(a.app.name).localeCompare(String(b.app.name), undefined, { sensitivity: "base" });
@@ -52,12 +54,73 @@ export function readmeUrls(repo, app) {
   return [`${base}README.md`, `${base}DOCS.md`];
 }
 
+// Row status, in the order the Marketplace groups them (most urgent first).
+const STATUS_ORDER = ["flagged", "installed", "added", "new", "available"];
+const STATUS_LABELS = {
+  flagged: "Back in review",
+  installed: "Installed",
+  added: "Repository added",
+  new: "New",
+  available: "Available",
+};
+const RISK_LABELS = { high: "High risk", medium: "Medium risk", low: "Low risk" };
+const NEW_DAYS = 14;
+
+export function rowStatus(repo, app, now = Date.now()) {
+  if (repo.status === "flagged") return "flagged";
+  if (app.installed) return "installed";
+  if (repo.added) return "added";
+  const reviewedAt = Date.parse(repo.reviewed?.at || "");
+  if (!Number.isNaN(reviewedAt) && now - reviewedAt < NEW_DAYS * 86400000) return "new";
+  return "available";
+}
+
+// filters: {status: [], risk: [], source: [], compatible: bool}. OR inside a
+// section, AND across sections, an empty section does not filter.
+export function filterRows(rows, filters, query, now = Date.now()) {
+  const q = String(query || "").trim().toLowerCase();
+  const pick = (list, value) => !list?.length || list.includes(value);
+  return rows.filter(({ repo, app }) => {
+    if (!pick(filters.status, rowStatus(repo, app, now))) return false;
+    if (!pick(filters.risk, app.risk)) return false;
+    if (!pick(filters.source, repo.added_by || "author")) return false;
+    if (filters.compatible && !app.compatible) return false;
+    if (!q) return true;
+    return [app.name, app.slug, app.description, repo.repository].some((v) => String(v || "").toLowerCase().includes(q));
+  });
+}
+
+// [{key, label, rows}] in display order; rows keep their incoming order.
+export function groupRows(rows, mode, now = Date.now()) {
+  if (mode === "none") return [{ key: "all", label: "", rows }];
+  const keyOf = {
+    status: (r) => rowStatus(r.repo, r.app, now),
+    risk: (r) => r.app.risk || "low",
+    repository: (r) => r.repo.repository,
+  }[mode];
+  const groups = new Map();
+  for (const row of rows) {
+    const key = keyOf(row);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(row);
+  }
+  const order = {
+    status: (k) => STATUS_ORDER.indexOf(k),
+    risk: (k) => RISK_ORDER[k] ?? 3,
+  }[mode];
+  const keys = [...groups.keys()].sort((a, b) => (order ? order(a) - order(b) : a.localeCompare(b, undefined, { sensitivity: "base" })));
+  const label = { status: (k) => STATUS_LABELS[k], risk: (k) => RISK_LABELS[k] || k, repository: (k) => k }[mode];
+  return keys.map((key) => ({ key, label: label(key), rows: groups.get(key) }));
+}
+
 // rows: [{repo, app}]; repositories without stars or date sort last.
-export function sortRows(rows, mode) {
+export function sortRows(rows, mode, now = Date.now()) {
   const compare = {
     stars: (a, b) => (b.repo.stars ?? -1) - (a.repo.stars ?? -1),
     updated: (a, b) => time(b.repo.updated_at) - time(a.repo.updated_at),
     risk: (a, b) => (RISK_ORDER[a.app.risk] ?? 3) - (RISK_ORDER[b.app.risk] ?? 3),
+    status: (a, b) => STATUS_ORDER.indexOf(rowStatus(a.repo, a.app, now)) - STATUS_ORDER.indexOf(rowStatus(b.repo, b.app, now)),
+    repository: (a, b) => a.repo.repository.localeCompare(b.repo.repository, undefined, { sensitivity: "base" }),
     name: () => 0,
   }[mode] || (() => 0);
   return [...rows].sort((a, b) => compare(a, b) || byName(a, b));
@@ -80,6 +143,53 @@ const fmtDate = (value) => {
   return Number.isNaN(d.getTime()) ? String(value) : d.toLocaleDateString();
 };
 
+const COLUMNS = {
+  icon: "Icon",
+  repository: "Repository",
+  stars: "Stars",
+  activity: "Activity",
+  risk: "Risk",
+  status: "Status",
+};
+const GROUPS = { status: "Status", risk: "Risk", repository: "Repository", none: "Don't group" };
+const FILTER_SECTIONS = {
+  status: { label: "Status", options: STATUS_LABELS },
+  risk: { label: "Risk", options: { high: "High", medium: "Medium", low: "Low" } },
+  source: { label: "Source", options: { author: "Added by the author", catalog: "Added by the catalog" } },
+};
+
+const relTime = (value) => {
+  const t = Date.parse(value || "");
+  if (Number.isNaN(t)) return "–";
+  const fmt = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
+  const steps = [[60, "second"], [60, "minute"], [24, "hour"], [7, "day"], [4.345, "week"], [12, "month"], [Infinity, "year"]];
+  let v = (t - Date.now()) / 1000;
+  for (const [n, unit] of steps) {
+    if (Math.abs(v) < n) return fmt.format(Math.round(v), unit);
+    v /= n;
+  }
+  return "–";
+};
+const compact = (n) => (typeof n === "number" ? new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 2 }).format(n) : "–");
+
+const store = {
+  get(key, fallback) {
+    try {
+      const raw = localStorage.getItem(`community-apps-${key}`);
+      return raw === null ? fallback : JSON.parse(raw);
+    } catch (err) {
+      return fallback;
+    }
+  },
+  set(key, value) {
+    try {
+      localStorage.setItem(`community-apps-${key}`, JSON.stringify(value));
+    } catch (err) {
+      // storage unavailable: the setting lasts for this page only
+    }
+  },
+};
+
 class CommunityAppsPanel extends HTMLElement {
   constructor() {
     super();
@@ -87,16 +197,18 @@ class CommunityAppsPanel extends HTMLElement {
     this._data = null;
     this._error = null;
     this._loading = false;
+    this._tab = "discover";
     this._query = "";
-    this._risk = "all";
-    this._compatibleOnly = true;
-    this._sort = "stars";
-    try {
-      const saved = localStorage.getItem("community-apps-sort");
-      if (saved && saved in SORTS) this._sort = saved;
-    } catch (err) {
-      // storage unavailable: keep the default
-    }
+    this._filters = { status: [], risk: [], source: [], compatible: true, ...store.get("filters", {}) };
+    this._sort = store.get("sort2", "stars");
+    if (!(this._sort in SORTS)) this._sort = "stars";
+    this._group = store.get("group", "status");
+    if (!(this._group in GROUPS)) this._group = "status";
+    this._columns = { ...Object.fromEntries(Object.keys(COLUMNS).map((c) => [c, true])), ...store.get("columns", {}) };
+    this._filtersOpen = store.get("filtersOpen", false);
+    this._collapsed = new Set();
+    this._menuOpen = null; // "group" | "sort" | null
+    this._customizing = false;
     this._selected = null; // {repository, slug}
     this._confirming = null; // repository awaiting high-risk confirmation
     this._busy = null;
@@ -160,24 +272,15 @@ class CommunityAppsPanel extends HTMLElement {
     this._render();
   }
 
-  _apps() {
-    const repos = this._data?.repositories || [];
+  _allRows() {
     const rows = [];
-    for (const repo of repos) {
+    for (const repo of this._data?.repositories || []) {
       if (repo.status === "removed") continue;
       for (const app of repo.scan?.apps || []) {
-        if (app.error) continue;
-        rows.push({ repo, app });
+        if (!app.error) rows.push({ repo, app });
       }
     }
-    const q = this._query.trim().toLowerCase();
-    const filtered = rows.filter(({ repo, app }) => {
-      if (this._risk !== "all" && app.risk !== this._risk) return false;
-      if (this._compatibleOnly && !app.compatible) return false;
-      if (!q) return true;
-      return [app.name, app.slug, repo.repository, app.description].some((v) => String(v || "").toLowerCase().includes(q));
-    });
-    return sortRows(filtered, this._sort);
+    return rows;
   }
 
   _stats(repo) {
@@ -191,44 +294,168 @@ class CommunityAppsPanel extends HTMLElement {
     return `<span class="chip risk-${esc(risk)}">${esc(risk)} risk</span>`;
   }
 
+  _statusChip(repo, app) {
+    const status = rowStatus(repo, app);
+    const cls = { flagged: "flagged", installed: "info", added: "info", new: "new", available: "muted" }[status];
+    return `<span class="chip ${cls}">${esc(STATUS_LABELS[status])}</span>`;
+  }
+
   _badges(repo, app) {
-    const out = [];
-    if (repo.status === "flagged") out.push('<span class="chip flagged">back in review</span>');
-    if (app.installed) out.push('<span class="chip info">installed</span>');
-    else if (repo.added) out.push('<span class="chip info">repository added</span>');
+    const out = [this._statusChip(repo, app)];
     if (!app.compatible) out.push('<span class="chip muted">not for this system</span>');
     if (repo.added_by === "catalog") out.push('<span class="chip muted">added by the catalog</span>');
     return out.join("");
   }
 
-  _listView() {
-    const rows = this._apps();
-    const cards = rows
-      .map(
-        ({ repo, app }) => `
-        <button class="card app" data-repo="${esc(repo.repository)}" data-slug="${esc(app.slug)}">
-          <div class="row"><span class="name">${esc(app.name)}</span>${this._riskChip(app.risk)}</div>
-          <div class="repo">${esc(repo.repository)}${app.version ? ` · ${esc(app.version)}` : ""}</div>
-          ${app.description ? `<div class="desc">${esc(app.description)}</div>` : ""}
-          ${this._stats(repo) ? `<div class="repo">${this._stats(repo)}</div>` : ""}
-          <div class="badges">${this._badges(repo, app)}</div>
-        </button>`
-      )
-      .join("");
-    const total = (this._data?.repositories || []).length;
+  _icon(repo, app) {
+    const url = readmeUrls(repo, app)[0]?.replace(/README\.md$/, "icon.png");
+    const fallback = `<span class="glyph">${esc((app.name || "?").slice(0, 1).toUpperCase())}</span>`;
+    if (!url) return `<span class="icon">${fallback}</span>`;
+    return `<span class="icon">${fallback}<img src="${esc(url)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>`;
+  }
+
+  // ---- tabs -------------------------------------------------------------
+
+  _tabsBar() {
+    const installed = this._allRows().filter((r) => r.app.installed).length;
+    const tab = (id, icon, label, extra = "") =>
+      `<button class="tab ${this._tab === id && !this._selected ? "active" : ""}" data-tab="${id}"><span class="tab-icon">${icon}</span>${label}${extra}</button>`;
     return `
-      <div class="filters">
-        <input id="q" type="search" placeholder="Search apps" value="${esc(this._query)}" aria-label="Search apps">
-        <select id="risk" aria-label="Risk">
-          ${["all", "low", "medium", "high"].map((r) => `<option value="${r}" ${this._risk === r ? "selected" : ""}>${r === "all" ? "All risks" : `${r} risk`}</option>`).join("")}
-        </select>
-        <select id="sort" aria-label="Sort by">
-          ${Object.entries(SORTS).map(([value, label]) => `<option value="${value}" ${this._sort === value ? "selected" : ""}>Sort by: ${label}</option>`).join("")}
-        </select>
-        <label class="toggle"><input id="compat" type="checkbox" ${this._compatibleOnly ? "checked" : ""}> Only apps for this system</label>
+      <nav class="tabs">
+        ${tab("discover", "◎", "Discover")}
+        ${tab("browse", "▦", "Browse")}
+        ${tab("installed", "✓", "Installed", installed ? `<span class="count">${installed}</span>` : "")}
+      </nav>`;
+  }
+
+  _discoverView() {
+    const rows = this._allRows().filter((r) => !this._filters.compatible || r.app.compatible);
+    // At most two apps per repository, so one big repository does not fill a list.
+    const top = (sorted, n = 6) => {
+      const seen = {};
+      return sorted.filter((r) => (seen[r.repo.repository] = (seen[r.repo.repository] || 0) + 1) <= 2).slice(0, n);
+    };
+    const byReview = [...rows].sort((a, b) => time(b.repo.reviewed?.at) - time(a.repo.reviewed?.at) || byName(a, b));
+    const section = (title, list, seeAll) => `
+      <section class="disc">
+        <div class="disc-head"><h2>${title}</h2>${seeAll ? `<button class="link" data-seeall="${seeAll}">See all</button>` : ""}</div>
+        <div class="disc-list">${list.map((r) => this._discRow(r)).join("") || '<p class="empty pad">Nothing yet.</p>'}</div>
+      </section>`;
+    return `
+      <div class="discover">
+        <h1 class="hero">Apps made by the community</h1>
+        <p class="hint">Third-party apps whose repositories were reviewed by a person when they entered the catalog. Open one to see what it can do before adding its repository.</p>
+        ${section("Popular", top(sortRows(rows, "stars")), "stars")}
+        ${section("Recently updated", top(sortRows(rows, "updated")), "updated")}
+        ${section("New in the catalog", top(byReview), "")}
+      </div>`;
+  }
+
+  _discRow({ repo, app }) {
+    const installed = rowStatus(repo, app) === "installed";
+    return `
+      <button class="disc-row" data-repo="${esc(repo.repository)}" data-slug="${esc(app.slug)}">
+        ${this._icon(repo, app)}
+        <span class="cell-name"><span class="name">${esc(app.name)} ${this._riskChip(app.risk)}</span><span class="desc1">${esc(app.description || repo.repository)}</span></span>
+        <span class="disc-meta">${installed ? '<span class="chip info">Installed</span>' : ""}${typeof repo.stars === "number" ? `<span>★ ${compact(repo.stars)}</span>` : ""}</span>
+      </button>`;
+  }
+
+  // ---- browse / installed table -----------------------------------------
+
+  _toolbar(count) {
+    const active = ["status", "risk", "source"].reduce((n, k) => n + (this._filters[k]?.length || 0), 0) + (this._filters.compatible ? 1 : 0);
+    const menu = (id, label, options, current, extra = "") => `
+      <div class="menu-wrap">
+        <button class="pill" data-menu="${id}">${label} ▾</button>
+        ${this._menuOpen === id ? `<div class="menu">${Object.entries(options).map(([v, l]) => `<button class="menu-item ${current === v ? "sel" : ""}" data-${id}="${v}">${esc(l)}</button>`).join("")}${extra}</div>` : ""}
+      </div>`;
+    const groupExtra = this._group === "none" ? "" : '<div class="menu-sep"></div><button class="menu-item" data-collapse="all">Collapse all</button><button class="menu-item" data-collapse="none">Expand all</button>';
+    return `
+      <div class="toolbar">
+        ${this._tab === "browse" ? `<button class="pill ${this._filtersOpen ? "on" : ""}" id="filters-toggle">☰ Filters${active ? `<span class="count">${active}</span>` : ""}</button>` : ""}
+        <input id="q" type="search" placeholder="Search ${count} apps" value="${esc(this._query)}" aria-label="Search apps">
+        ${menu("group", `Group by ${this._group === "none" ? "nothing" : GROUPS[this._group]}`, GROUPS, this._group, groupExtra)}
+        ${menu("sort", "Sort by", SORTS, this._sort)}
+        <button class="pill square" id="customize" title="Customize columns" aria-label="Customize columns">⚙</button>
+      </div>`;
+  }
+
+  _filterPane() {
+    const sections = Object.entries(FILTER_SECTIONS)
+      .map(([key, { label, options }]) => `
+        <div class="fsec">
+          <div class="fsec-title">${label}</div>
+          ${Object.entries(options).map(([v, l]) => `<label class="fopt"><span>${esc(l)}</span><input type="checkbox" data-filter="${key}" value="${v}" ${this._filters[key]?.includes(v) ? "checked" : ""}></label>`).join("")}
+        </div>`)
+      .join("");
+    return `
+      <aside class="fpane">
+        ${sections}
+        <div class="fsec">
+          <div class="fsec-title">System</div>
+          <label class="fopt"><span>Only apps for this system</span><input type="checkbox" id="compat" ${this._filters.compatible ? "checked" : ""}></label>
+        </div>
+        <button class="link" id="clear-filters">Clear filters</button>
+      </aside>`;
+  }
+
+  _tableView() {
+    const all = this._allRows();
+    const base = this._tab === "installed" ? all.filter((r) => r.app.installed) : all;
+    const filters = this._tab === "installed" ? { compatible: false } : this._filters;
+    const rows = sortRows(filterRows(base, filters, this._query), this._sort);
+    const groups = groupRows(rows, this._group);
+    const cols = this._columns;
+    const template = [cols.icon ? "44px" : null, "minmax(180px, 3fr)", cols.repository ? "minmax(120px, 1.4fr)" : null,
+      cols.stars ? "80px" : null, cols.activity ? "120px" : null, cols.risk ? "110px" : null, cols.status ? "160px" : null]
+      .filter(Boolean).join(" ");
+    const head = `
+      <div class="trow thead" style="grid-template-columns:${template}">
+        ${cols.icon ? "<span></span>" : ""}<span>App</span>${cols.repository ? '<span class="c-repo">Repository</span>' : ""}
+        ${cols.stars ? '<span class="num">Stars</span>' : ""}${cols.activity ? '<span class="num c-act">Activity</span>' : ""}
+        ${cols.risk ? "<span>Risk</span>" : ""}${cols.status ? '<span class="c-status">Status</span>' : ""}
+      </div>`;
+    const line = ({ repo, app }) => `
+      <button class="trow" style="grid-template-columns:${template}" data-repo="${esc(repo.repository)}" data-slug="${esc(app.slug)}">
+        ${cols.icon ? this._icon(repo, app) : ""}
+        <span class="cell-name"><span class="name">${esc(app.name)}</span><span class="desc1">${esc(app.description || "")}</span></span>
+        ${cols.repository ? `<span class="muted c-repo ellip">${esc(repo.repository)}</span>` : ""}
+        ${cols.stars ? `<span class="num">${compact(repo.stars)}</span>` : ""}
+        ${cols.activity ? `<span class="num muted c-act">${esc(relTime(repo.updated_at))}</span>` : ""}
+        ${cols.risk ? `<span>${this._riskChip(app.risk)}</span>` : ""}
+        ${cols.status ? `<span class="c-status">${this._statusChip(repo, app)}</span>` : ""}
+      </button>`;
+    const body = groups
+      .map((g) => {
+        if (this._group === "none") return g.rows.map(line).join("");
+        const collapsed = this._collapsed.has(g.key);
+        return `
+          <button class="ghead" data-group="${esc(g.key)}"><span class="chev">${collapsed ? "▸" : "▾"}</span>${esc(g.label)}<span class="gcount">${g.rows.length}</span></button>
+          ${collapsed ? "" : g.rows.map(line).join("")}`;
+      })
+      .join("");
+    const showPane = this._tab === "browse" && this._filtersOpen;
+    const empty = this._tab === "installed" ? "No app from the catalog is installed." : "No app matches these filters.";
+    return `
+      ${this._toolbar(base.length)}
+      <div class="browse ${showPane ? "with-pane" : ""}">
+        ${showPane ? this._filterPane() : ""}
+        <div class="table">${head}${body || `<p class="empty pad">${empty}</p>`}</div>
       </div>
-      <p class="hint">${rows.length} apps from ${total} repositories. Each repository was reviewed by a person when it entered the catalog; the details list what each app can do.</p>
-      <div class="grid">${cards || '<p class="empty">No app matches these filters.</p>'}</div>`;
+      ${this._customizing ? this._customizeDialog() : ""}`;
+  }
+
+  _customizeDialog() {
+    return `
+      <div class="overlay" id="overlay">
+        <div class="dialog" role="dialog" aria-label="Customize">
+          <div class="dialog-head"><button class="link" id="close-customize" aria-label="Close">✕</button><h2>Customize</h2></div>
+          <label class="copt disabled"><span>App name</span><input type="checkbox" checked disabled></label>
+          ${Object.entries(COLUMNS).map(([c, l]) => `<label class="copt"><span>${l}</span><input type="checkbox" data-col="${c}" ${this._columns[c] ? "checked" : ""}></label>`).join("")}
+          <div class="dialog-actions"><button class="link" id="restore-columns">Restore defaults</button><button class="button" id="done-customize">Done</button></div>
+        </div>
+      </div>`;
   }
 
   _detailView() {
@@ -236,7 +463,7 @@ class CommunityAppsPanel extends HTMLElement {
     const app = repo?.scan?.apps?.find((a) => a.slug === this._selected.slug);
     if (!repo || !app) {
       this._selected = null;
-      return this._listView();
+      return this._tableView();
     }
     const perms = app.permissions?.length
       ? `<ul>${app.permissions.map((p) => `<li><code>${esc(p)}</code> ${esc(describePermission(p))}</li>`).join("")}</ul>`
@@ -254,7 +481,7 @@ class CommunityAppsPanel extends HTMLElement {
       : "";
     const entryPath = repo.repository.toLowerCase();
     return `
-      <button class="link back" id="back">← All apps</button>
+      <button class="link back" id="back">← Back</button>
       <div class="card detail">
         <div class="row"><h2>${esc(app.name)}</h2>${this._riskChip(app.risk)}</div>
         <div class="repo">${esc(repo.repository)}${app.version ? ` · version ${esc(app.version)}` : ""} · ${app.image === "prebuilt" ? "prebuilt image" : "built from source on your system"}</div>
@@ -372,48 +599,91 @@ class CommunityAppsPanel extends HTMLElement {
       : "";
     let body;
     if (this._error) body = `<div class="banner">Could not load the catalog: ${esc(this._error)} <button class="link" id="retry">Retry</button></div>`;
-    else if (!this._data) body = '<p class="empty">Loading…</p>';
-    else body = banner + (this._selected ? this._detailView() : this._listView());
+    else if (!this._data) body = '<p class="empty pad">Loading…</p>';
+    else if (this._selected) body = banner + `<div class="page">${this._detailView()}</div>`;
+    else if (this._tab === "discover") body = banner + `<div class="page">${this._discoverView()}</div>`;
+    else body = banner + this._tableView();
 
     this.shadowRoot.innerHTML = `
       <style>
-        :host { display: block; min-height: 100vh; background: var(--primary-background-color); color: var(--primary-text-color); font-family: var(--paper-font-body1_-_font-family, sans-serif); }
-        header { display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 16px; background: var(--app-header-background-color, var(--primary-color)); color: var(--app-header-text-color, #fff); }
-        header h1 { font-size: 20px; font-weight: 400; margin: 0; flex: 1; }
-        main { max-width: 1100px; margin: 0 auto; padding: 16px; box-sizing: border-box; font-size: 14px; line-height: 1.45; }
-        .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-        input[type=search], select { padding: 8px 10px; border-radius: 8px; border: 1px solid var(--divider-color); background: var(--card-background-color); color: var(--primary-text-color); font-size: 14px; }
-        input[type=search] { flex: 1 1 220px; min-width: 0; }
-        .toggle { font-size: 14px; display: flex; gap: 6px; align-items: center; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-top: 8px; }
-        .card { background: var(--card-background-color); border: 1px solid var(--divider-color); border-radius: 12px; padding: 12px 14px; text-align: left; color: inherit; font: inherit; }
-        button.card { cursor: pointer; width: 100%; }
-        button.card:hover { border-color: var(--primary-color); }
-        .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        :host { display: block; min-height: 100vh; background: var(--primary-background-color); color: var(--primary-text-color); font-family: var(--paper-font-body1_-_font-family, sans-serif); font-size: 14px; line-height: 1.45; }
+        * { box-sizing: border-box; }
+        header { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 12px; background: var(--app-header-background-color, var(--primary-color)); color: var(--app-header-text-color, #fff); border-bottom: 1px solid var(--divider-color); }
+        header h1 { font-size: 20px; font-weight: 400; margin: 0 8px 0 0; white-space: nowrap; }
+        .tabs { display: flex; flex: 1; justify-content: center; height: 100%; }
+        .tab { display: flex; align-items: center; gap: 6px; height: 100%; padding: 0 16px; background: none; border: none; border-bottom: 2px solid transparent; color: inherit; font: inherit; cursor: pointer; opacity: .85; }
+        .tab.active { color: var(--primary-color); border-bottom-color: var(--primary-color); opacity: 1; }
+        .tab-icon { font-size: 15px; }
+        .count { margin-left: 6px; font-size: 11px; padding: 0 6px; border-radius: 8px; background: var(--primary-color); color: var(--text-primary-color, #fff); }
+        .refresh { background: none; border: 1px solid currentColor; border-radius: 16px; padding: 4px 12px; color: inherit; font: inherit; cursor: pointer; white-space: nowrap; }
+        .page { max-width: 1000px; margin: 0 auto; padding: 16px; }
+        .pad { padding: 16px; }
+        .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--divider-color); }
+        .pill { display: inline-flex; align-items: center; gap: 4px; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--divider-color); background: var(--card-background-color); color: var(--primary-text-color); font: inherit; cursor: pointer; white-space: nowrap; }
+        .pill.on { border-color: var(--primary-color); color: var(--primary-color); }
+        .pill.square { padding: 7px 10px; }
+        input[type=search] { flex: 1 1 220px; min-width: 0; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--divider-color); background: var(--card-background-color); color: var(--primary-text-color); font: inherit; }
+        .menu-wrap { position: relative; }
+        .menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 4; min-width: 180px; padding: 4px 0; border-radius: 8px; border: 1px solid var(--divider-color); background: var(--card-background-color); box-shadow: 0 4px 16px rgba(0,0,0,.25); }
+        .menu-item { display: block; width: 100%; padding: 9px 16px; text-align: left; background: none; border: none; color: var(--primary-text-color); font: inherit; cursor: pointer; }
+        .menu-item:hover { background: var(--secondary-background-color, rgba(127,127,127,.12)); }
+        .menu-item.sel { color: var(--primary-color); }
+        .menu-sep { border-top: 1px solid var(--divider-color); margin: 4px 0; }
+        .browse { display: grid; grid-template-columns: 1fr; }
+        .browse.with-pane { grid-template-columns: 240px 1fr; }
+        .fpane { border-right: 1px solid var(--divider-color); padding: 8px 0; }
+        .fsec { padding: 4px 0 8px; border-bottom: 1px solid var(--divider-color); }
+        .fsec-title { padding: 8px 16px; font-weight: 500; }
+        .fopt { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 16px; cursor: pointer; }
+        #clear-filters { margin: 8px 16px; }
+        .table { min-width: 0; }
+        .trow { display: grid; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 6px 12px; text-align: left; background: none; border: none; border-bottom: 1px solid var(--divider-color); color: inherit; font: inherit; cursor: pointer; }
+        button.trow:hover { background: var(--secondary-background-color, rgba(127,127,127,.08)); }
+        .thead { min-height: 44px; font-weight: 500; cursor: default; position: sticky; top: 56px; z-index: 2; background: var(--primary-background-color); }
+        .ghead { display: flex; align-items: center; gap: 8px; width: 100%; padding: 12px; background: none; border: none; border-bottom: 1px solid var(--divider-color); color: inherit; font: inherit; font-weight: 500; cursor: pointer; text-align: left; }
+        .chev { width: 14px; }
+        .gcount { color: var(--secondary-text-color); font-weight: 400; }
+        .cell-name { display: flex; flex-direction: column; min-width: 0; }
         .name { font-weight: 500; overflow-wrap: anywhere; }
+        .desc1 { color: var(--primary-color); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ellip { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .num { text-align: right; }
+        .icon { position: relative; width: 36px; height: 36px; display: inline-flex; }
+        .icon img { position: absolute; inset: 0; width: 36px; height: 36px; object-fit: contain; border-radius: 6px; background: var(--card-background-color); }
+        .glyph { width: 36px; height: 36px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; background: var(--secondary-background-color, rgba(127,127,127,.2)); font-weight: 500; }
+        .discover .hero { font-size: 28px; font-weight: 600; margin: 8px 0 4px; }
+        .disc { margin-top: 24px; }
+        .disc-head { display: flex; justify-content: space-between; align-items: baseline; }
+        .disc-head h2 { font-size: 18px; font-weight: 500; margin: 0 0 8px; }
+        .disc-list { border: 1px solid var(--divider-color); border-radius: 12px; overflow: hidden; background: var(--card-background-color); }
+        .disc-row { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 12px; width: 100%; padding: 10px 14px; background: none; border: none; border-bottom: 1px solid var(--divider-color); color: inherit; font: inherit; text-align: left; cursor: pointer; }
+        .disc-row:last-child { border-bottom: none; }
+        .disc-row:hover { background: var(--secondary-background-color, rgba(127,127,127,.08)); }
+        .disc-meta { display: flex; gap: 10px; align-items: center; color: var(--secondary-text-color); white-space: nowrap; }
+        .card { background: var(--card-background-color); border: 1px solid var(--divider-color); border-radius: 12px; padding: 12px 14px; text-align: left; color: inherit; font: inherit; }
+        .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
         .repo { color: var(--secondary-text-color); font-size: 13px; margin-top: 2px; overflow-wrap: anywhere; }
         .badges { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
-        .chip { font-size: 12px; padding: 2px 8px; border-radius: 10px; white-space: nowrap; border: 1px solid var(--divider-color); }
+        .chip { display: inline-block; font-size: 12px; font-weight: 400; padding: 1px 8px; border-radius: 10px; white-space: nowrap; border: 1px solid var(--divider-color); }
         .risk-low { color: var(--success-color); border-color: var(--success-color); }
         .risk-medium { color: var(--warning-color); border-color: var(--warning-color); }
         .risk-high { color: var(--error-color); border-color: var(--error-color); }
         .flagged { color: var(--warning-color); border-color: var(--warning-color); }
         .info { color: var(--primary-color); border-color: var(--primary-color); }
+        .new { color: var(--success-color); border-color: var(--success-color); }
         .muted { color: var(--secondary-text-color); }
         .hint { color: var(--secondary-text-color); font-size: 13px; }
         .empty { color: var(--secondary-text-color); }
-        .banner, .warn { border-left: 4px solid var(--warning-color); padding: 8px 12px; background: var(--card-background-color); margin: 0 0 12px; }
+        .banner, .warn { border-left: 4px solid var(--warning-color); padding: 8px 12px; background: var(--card-background-color); margin: 12px; }
         .detail h2 { margin: 0; font-size: 22px; font-weight: 400; overflow-wrap: anywhere; }
         .detail h3 { font-size: 15px; margin: 18px 0 6px; }
         .detail ul { padding-left: 20px; margin: 4px 0; }
         .detail li { margin: 4px 0; overflow-wrap: anywhere; }
         code { font-size: 12px; background: var(--secondary-background-color, rgba(127,127,127,.15)); padding: 1px 4px; border-radius: 4px; }
         .links { display: flex; gap: 16px; }
-        .desc { font-size: 13px; margin-top: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .lead { font-size: 15px; margin: 10px 0 0; }
         .readme { border-top: 1px solid var(--divider-color); padding-top: 4px; overflow-wrap: anywhere; }
         .readme pre { white-space: pre-wrap; font-size: 13px; }
-        .readme img { max-width: 100%; }
         a { color: var(--primary-color); }
         .button { display: inline-block; margin-top: 12px; padding: 10px 16px; border-radius: 8px; border: none; background: var(--primary-color); color: var(--text-primary-color, #fff); font: inherit; cursor: pointer; text-decoration: none; }
         .button[disabled] { opacity: .6; cursor: default; }
@@ -421,15 +691,50 @@ class CommunityAppsPanel extends HTMLElement {
         .link { background: none; border: none; color: var(--primary-color); font: inherit; cursor: pointer; padding: 4px 0; }
         .back { margin-bottom: 8px; }
         .confirm { margin-top: 12px; border: 1px solid var(--error-color); border-radius: 8px; padding: 8px 12px; }
-        .refresh { background: none; border: none; color: inherit; font-size: 14px; cursor: pointer; }
+        .overlay { position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.5); padding: 16px; }
+        .dialog { width: 100%; max-width: 360px; border-radius: 16px; background: var(--card-background-color); padding: 12px 0; box-shadow: 0 8px 32px rgba(0,0,0,.4); }
+        .dialog-head { display: flex; align-items: center; gap: 12px; padding: 4px 20px 8px; }
+        .dialog-head h2 { margin: 0; font-size: 20px; font-weight: 400; }
+        .copt { display: flex; justify-content: space-between; align-items: center; padding: 8px 20px; cursor: pointer; }
+        .copt.disabled { color: var(--secondary-text-color); cursor: default; }
+        .dialog-actions { display: flex; justify-content: flex-end; align-items: center; gap: 16px; padding: 12px 20px 4px; }
+        .dialog-actions .button { margin-top: 0; }
+        @media (max-width: 760px) {
+          header h1 { display: none; }
+          .tab { padding: 0 8px; }
+          .tab-icon, .rlabel { display: none; }
+          .refresh { padding: 4px 10px; }
+          .browse.with-pane { grid-template-columns: 1fr; }
+          .fpane { border-right: none; border-bottom: 1px solid var(--divider-color); }
+          .trow { grid-template-columns: 44px 1fr 110px !important; }
+          .trow .c-repo, .trow .num, .trow .c-status { display: none; }
+          .thead { top: 56px; }
+        }
       </style>
-      <header><span id="menu"></span><h1>Community Apps</h1><button class="refresh" id="refresh" ${this._loading ? "disabled" : ""}>${this._loading ? "Refreshing…" : "Refresh"}</button></header>
-      <main>${body}</main>`;
+      <header>
+        <span id="menu"></span><h1>Community Apps</h1>
+        ${this._data ? this._tabsBar() : '<span class="tabs"></span>'}
+        <button class="refresh" id="refresh" ${this._loading ? "disabled" : ""}>↻<span class="rlabel"> ${this._loading ? "Refreshing…" : "Refresh"}</span></button>
+      </header>
+      ${body}`;
     this._wire();
+  }
+
+  _open(el) {
+    this._selected = { repository: el.dataset.repo, slug: el.dataset.slug };
+    this._menuOpen = null;
+    this._render();
+    window.scrollTo(0, 0);
+  }
+
+  _saveFilters() {
+    store.set("filters", this._filters);
+    this._render();
   }
 
   _wire() {
     const root = this.shadowRoot;
+    const on = (sel, event, fn) => root.querySelectorAll(sel).forEach((el) => el.addEventListener(event, (e) => fn(el, e)));
     const slot = root.getElementById("menu");
     if (slot && customElements.get("ha-menu-button")) {
       this._menu = this._menu || document.createElement("ha-menu-button");
@@ -437,44 +742,113 @@ class CommunityAppsPanel extends HTMLElement {
       this._menu.narrow = this._narrow;
       slot.appendChild(this._menu);
     }
-    root.getElementById("refresh")?.addEventListener("click", () => this._load(true));
-    root.getElementById("retry")?.addEventListener("click", () => this._load(true));
-    const q = root.getElementById("q");
-    if (q) {
-      q.addEventListener("input", (e) => {
-        this._query = e.target.value;
-        const pos = e.target.selectionStart;
-        this._render();
-        const again = this.shadowRoot.getElementById("q");
-        again.focus();
-        again.setSelectionRange(pos, pos);
-      });
-    }
-    root.getElementById("risk")?.addEventListener("change", (e) => {
-      this._risk = e.target.value;
+    on("#refresh, #retry", "click", () => this._load(true));
+    on(".tab", "click", (el) => {
+      this._tab = el.dataset.tab;
+      this._selected = null;
+      this._confirming = null;
+      this._menuOpen = null;
       this._render();
     });
-    root.getElementById("sort")?.addEventListener("change", (e) => {
-      this._sort = e.target.value in SORTS ? e.target.value : "stars";
-      try {
-        localStorage.setItem("community-apps-sort", this._sort);
-      } catch (err) {
-        // storage unavailable: choice lasts for this page only
+    on("[data-seeall]", "click", (el) => {
+      this._tab = "browse";
+      this._sort = el.dataset.seeall;
+      store.set("sort2", this._sort);
+      this._render();
+    });
+    on("button.trow, .disc-row", "click", (el) => this._open(el));
+    const q = root.getElementById("q");
+    q?.addEventListener("input", (e) => {
+      this._query = e.target.value;
+      const pos = e.target.selectionStart;
+      this._render();
+      const again = this.shadowRoot.getElementById("q");
+      again.focus();
+      again.setSelectionRange(pos, pos);
+    });
+    on("#filters-toggle", "click", () => {
+      this._filtersOpen = !this._filtersOpen;
+      store.set("filtersOpen", this._filtersOpen);
+      this._render();
+    });
+    on("[data-filter]", "change", (el) => {
+      const list = new Set(this._filters[el.dataset.filter] || []);
+      if (el.checked) list.add(el.value);
+      else list.delete(el.value);
+      this._filters = { ...this._filters, [el.dataset.filter]: [...list] };
+      this._saveFilters();
+    });
+    on("#compat", "change", (el) => {
+      this._filters = { ...this._filters, compatible: el.checked };
+      this._saveFilters();
+    });
+    on("#clear-filters", "click", () => {
+      this._filters = { status: [], risk: [], source: [], compatible: false };
+      this._saveFilters();
+    });
+    on("[data-menu]", "click", (el, e) => {
+      e.stopPropagation();
+      this._menuOpen = this._menuOpen === el.dataset.menu ? null : el.dataset.menu;
+      this._render();
+    });
+    on("[data-group]", "click", (el) => {
+      if (el.classList.contains("ghead")) {
+        if (this._collapsed.has(el.dataset.group)) this._collapsed.delete(el.dataset.group);
+        else this._collapsed.add(el.dataset.group);
+      } else {
+        this._group = el.dataset.group in GROUPS ? el.dataset.group : "status";
+        this._collapsed.clear();
+        store.set("group", this._group);
+        this._menuOpen = null;
       }
       this._render();
     });
-    root.getElementById("compat")?.addEventListener("change", (e) => {
-      this._compatibleOnly = e.target.checked;
+    on("[data-collapse]", "click", (el) => {
+      const all = this._tab === "installed" ? this._allRows().filter((r) => r.app.installed) : this._allRows();
+      this._collapsed = el.dataset.collapse === "all" ? new Set(groupRows(all, this._group).map((g) => g.key)) : new Set();
+      this._menuOpen = null;
       this._render();
     });
-    root.querySelectorAll("button.app").forEach((el) =>
-      el.addEventListener("click", () => {
-        this._selected = { repository: el.dataset.repo, slug: el.dataset.slug };
+    on("[data-sort]", "click", (el) => {
+      this._sort = el.dataset.sort in SORTS ? el.dataset.sort : "stars";
+      store.set("sort2", this._sort);
+      this._menuOpen = null;
+      this._render();
+    });
+    if (this._menuOpen) {
+      root.addEventListener("click", (e) => {
+        if (!e.composedPath().some((n) => n.classList?.contains("menu"))) {
+          this._menuOpen = null;
+          this._render();
+        }
+      }, { once: true });
+    }
+    on("#customize", "click", () => {
+      this._customizing = true;
+      this._menuOpen = null;
+      this._render();
+    });
+    on("[data-col]", "change", (el) => {
+      this._columns = { ...this._columns, [el.dataset.col]: el.checked };
+      store.set("columns", this._columns);
+      this._render();
+    });
+    on("#restore-columns", "click", () => {
+      this._columns = Object.fromEntries(Object.keys(COLUMNS).map((c) => [c, true]));
+      store.set("columns", this._columns);
+      this._render();
+    });
+    on("#close-customize, #done-customize", "click", () => {
+      this._customizing = false;
+      this._render();
+    });
+    on("#overlay", "click", (el, e) => {
+      if (e.target === el) {
+        this._customizing = false;
         this._render();
-        window.scrollTo(0, 0);
-      })
-    );
-    root.getElementById("back")?.addEventListener("click", () => {
+      }
+    });
+    on("#back", "click", () => {
       this._selected = null;
       this._confirming = null;
       this._render();
@@ -488,9 +862,9 @@ class CommunityAppsPanel extends HTMLElement {
       }
     }
     const current = this._selected?.repository;
-    root.getElementById("add")?.addEventListener("click", () => this._add(current, false));
-    root.getElementById("confirm-add")?.addEventListener("click", () => this._add(current, true));
-    root.getElementById("cancel-add")?.addEventListener("click", () => {
+    on("#add", "click", () => this._add(current, false));
+    on("#confirm-add", "click", () => this._add(current, true));
+    on("#cancel-add", "click", () => {
       this._confirming = null;
       this._render();
     });
