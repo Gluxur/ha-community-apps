@@ -1,2 +1,63 @@
 repository: zigbee2mqtt/hassio-zigbee2mqtt
 added_by: catalog
+status: approved
+reviewed:
+  by: Gluxur
+  at: '2026-11-15'
+  commit: f8264199c24eca711d08deb47d7bb3e9b8a07abe
+scan:
+  commit: f8264199c24eca711d08deb47d7bb3e9b8a07abe
+  at: '2026-11-15T17:28:22Z'
+  apps:
+  - path: zigbee2mqtt
+    slug: zigbee2mqtt
+    name: Zigbee2MQTT
+    description: Use your ZigBee devices without the vendor's bridge or gateway
+    version: 2.14.3-1
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - map_rw:app_config
+    - map_rw:config
+    - map_rw:share
+    - uart
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: zigbee2mqtt-edge
+    slug: zigbee2mqtt_edge
+    name: Zigbee2MQTT Edge
+    description: Development build of the Zigbee2MQTT app
+    version: edge
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - map_rw:app_config
+    - map_rw:config
+    - map_rw:share
+    - uart
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: zigbee2mqtt-proxy
+    slug: zigbee2mqtt_proxy
+    name: Zigbee2MQTT Proxy
+    description: Proxy for externally running Zigbee2MQTT
+    version: 0.3.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions: []
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
