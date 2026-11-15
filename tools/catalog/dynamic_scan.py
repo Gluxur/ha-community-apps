@@ -52,9 +52,13 @@ def image_for(app_dir: Path, config: dict[str, Any], arch: str = "amd64") -> tup
     for name in BUILD_FILES:
         path = app_dir / name
         if path.is_file():
-            text = path.read_text(encoding="utf-8")
-            data = json.loads(text) if name.endswith(".json") else yaml.safe_load(text)
-            base = ((data or {}).get("build_from") or {}).get(arch)
+            try:
+                text = path.read_text(encoding="utf-8")
+                data = json.loads(text) if name.endswith(".json") else yaml.safe_load(text)
+                build_from = data.get("build_from") if isinstance(data, dict) else None
+                base = build_from.get(arch) if isinstance(build_from, dict) else None
+            except (OSError, ValueError, yaml.YAMLError):
+                base = None
             return ("build", str(base or ""))
     return ("build", "")
 

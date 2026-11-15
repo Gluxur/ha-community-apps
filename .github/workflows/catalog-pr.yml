@@ -48,8 +48,8 @@ jobs:
           REPOSITORY: ${{ steps.validate.outputs.repository }}
           PYTHONPATH: ${{ github.workspace }}/trusted
         run: |
-          python -m tools.catalog scan "$REPOSITORY" --dynamic --out out/scan.json
-          python -m tools.catalog report --scan out/scan.json --errors out/errors.json --out out/report.md
+          python -P -m tools.catalog scan "$REPOSITORY" --dynamic --out out/scan.json
+          python -P -m tools.catalog report --scan out/scan.json --errors out/errors.json --out out/report.md
       - name: Report without scan
         if: steps.validate.outputs.repository == ''
         run: python trusted/.github/scripts/errors-report.py out/errors.json out/report.md

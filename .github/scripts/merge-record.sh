@@ -21,7 +21,11 @@ for f in "${pending[@]}"; do
   repository=$(python -c 'import sys,yaml; print(yaml.safe_load(open(sys.argv[1]))["repository"])' "$f" \
     | grep -E '^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$')
   reviewer=$(reviewer_for "$f")
-  python -m tools.catalog scan "$repository" --dynamic --out /tmp/scan.json
+  # One broken third-party repository must not block the others.
+  if ! python -m tools.catalog scan "$repository" --dynamic --out /tmp/scan.json; then
+    echo "::warning::scan failed for $repository; left pending"
+    continue
+  fi
   python -m tools.catalog apply-review "$f" --reviewer "$reviewer" --scan /tmp/scan.json
   git config user.name "github-actions[bot]"
   git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

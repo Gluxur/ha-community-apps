@@ -13,7 +13,7 @@ gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/files" --paginate --jq '.[].filename'
 entry=$(grep -m1 -E '^catalog/repositories/.*\.yaml$' ../out/changed.txt || true)
 repository=""
 if [ -n "$entry" ] && [ -f "$entry" ]; then
-  repository=$(python -c 'import sys,yaml; d=yaml.safe_load(open(sys.argv[1])); print(d.get("repository","") if isinstance(d,dict) else "")' "$entry" 2>/dev/null \
+  repository=$(python -P -c 'import sys,yaml; d=yaml.safe_load(open(sys.argv[1])); print(d.get("repository","") if isinstance(d,dict) else "")' "$entry" 2>/dev/null \
     | grep -E '^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$' || true)
 fi
 
@@ -26,7 +26,7 @@ fi
 echo "repository=$repository" >> "$GITHUB_OUTPUT"
 
 mapfile -t changed < ../out/changed.txt
-if python -m tools.catalog validate --author "$AUTHOR" --permission "$permission" \
+if python -P -m tools.catalog validate --author "$AUTHOR" --permission "$permission" \
     --errors-out ../out/errors.json --changed "${changed[@]}"; then
   echo "ok=true" >> "$GITHUB_OUTPUT"
 else
