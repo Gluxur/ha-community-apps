@@ -1,0 +1,24 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Community Apps",
+        "description": "Adds a **Community Apps** page to the sidebar (administrators only) to browse a community catalog of third-party apps and add their repositories to the app store.\n\nEach repository was reviewed by a person when it entered the catalog and is rescanned automatically when it changes. The review lists signals (permissions, domains contacted); it does not prove an app is harmless."
+      }
+    },
+    "abort": {
+      "no_supervisor": "Apps need a Supervisor (Home Assistant OS or Supervised). This installation has none.",
+      "single_instance_allowed": "Community Apps is already set up."
+    }
+  },
+  "issues": {
+    "app_flagged": {
+      "title": "{app}: back in review in Community Apps",
+      "description": "The repository **{repository}** of the installed app **{app}** changed and is back in review: {reason}.\n\nThe update may already be installed. Check what changed before using the app further."
+    },
+    "app_removed": {
+      "title": "{app}: removed from Community Apps",
+      "description": "The repository **{repository}** of the installed app **{app}** was removed from the catalog: {reason}.\n\nThe app stays installed. Decide whether you want to keep it."
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Community Apps",
+        "description": "Ajoute une page **Community Apps** dans la barre latérale (administrateurs uniquement) pour parcourir un catalogue communautaire d'apps tierces et ajouter leurs dépôts au store d'apps.\n\nChaque dépôt a été relu par une personne à son entrée dans le catalogue, puis il est rescanné automatiquement quand il change. La relecture liste des signaux (permissions, domaines contactés) ; elle ne prouve pas qu'une app est inoffensive."
+      }
+    },
+    "abort": {
+      "no_supervisor": "Les apps nécessitent un Supervisor (Home Assistant OS ou Supervised). Cette installation n'en a pas.",
+      "single_instance_allowed": "Community Apps est déjà configuré."
+    }
+  },
+  "issues": {
+    "app_flagged": {
+      "title": "{app} : de nouveau en relecture dans Community Apps",
+      "description": "Le dépôt **{repository}** de l'app installée **{app}** a changé et repasse en relecture : {reason}.\n\nLa mise à jour est peut-être déjà installée. Vérifiez ce qui a changé avant de continuer à utiliser l'app."
+    },
+    "app_removed": {
+      "title": "{app} : retirée de Community Apps",
+      "description": "Le dépôt **{repository}** de l'app installée **{app}** a été retiré du catalogue : {reason}.\n\nL'app reste installée. À vous de décider si vous la gardez."
+    }
+  }
+}
