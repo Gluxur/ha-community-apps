@@ -31,7 +31,7 @@ def render_report(full_name: str, commit: str, scan: dict[str, Any], errors: lis
     lines += [
         "",
         "Dynamic run: the app is started for a few minutes in an isolated network without configuration; "
-        "only DNS lookups are recorded. `failed` usually means the app needs the Supervisor or its options.",
+        "only DNS lookups are recorded. `failed` usually means the app needs the Supervisor or its options; `skipped` means not started (architecture, or the 45-minute budget per repository went to riskier apps first).",
         "",
         f"_{DISCLAIMER}_",
     ]
