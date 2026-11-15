@@ -77,3 +77,12 @@ def test_can_add(catalog):
     assert catalog.can_add(high, False) == "confirmation_required"
     assert catalog.can_add(high, True) is None
     assert catalog.can_add(_repo(), False) is None
+
+
+def test_keep_last_good(catalog):
+    fresh = catalog.keep_last_good(None, [_repo()], None, "T1")
+    assert fresh == {"repos": [_repo()], "catalog_error": None, "fetched_at": "T1"}
+    kept = catalog.keep_last_good(fresh, None, "HTTP 500", "T2")
+    assert kept == {"repos": [_repo()], "catalog_error": "HTTP 500", "fetched_at": "T1"}
+    with pytest.raises(catalog.CatalogError):
+        catalog.keep_last_good(None, None, "HTTP 500", "T2")

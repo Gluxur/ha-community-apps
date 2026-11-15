@@ -28,6 +28,20 @@ def parse_catalog(data: object, schema_version: int) -> list[dict[str, Any]]:
     return [r for r in repositories if isinstance(r, dict) and isinstance(r.get("repository"), str)]
 
 
+def keep_last_good(
+    previous: dict[str, Any] | None,
+    repos: list[dict[str, Any]] | None,
+    error: str | None,
+    fetched_at: str,
+) -> dict[str, Any]:
+    """Coordinator data: new repositories, or the previous ones with the error."""
+    if error is None and repos is not None:
+        return {"repos": repos, "catalog_error": None, "fetched_at": fetched_at}
+    if not previous:
+        raise CatalogError(error or "catalog unavailable")
+    return {**previous, "catalog_error": error or "catalog unavailable"}
+
+
 def normalize_repo_url(url: str) -> str | None:
     """'owner/repo' (lowercase) for a GitHub URL, else None."""
     match = _GITHUB.match(url.strip())
