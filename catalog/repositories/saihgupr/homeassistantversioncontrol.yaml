@@ -1,2 +1,45 @@
 repository: saihgupr/HomeAssistantVersionControl
 added_by: catalog
+status: approved
+reviewed:
+  by: Gluxur
+  at: '2026-11-15'
+  commit: a892b9919d8211981feb14fa797863f04e133398
+scan:
+  commit: a892b9919d8211981feb14fa797863f04e133398
+  at: '2026-11-15T17:27:44Z'
+  apps:
+  - path: homeassistant-version-control
+    slug: home-assistant-version-control
+    name: Home Assistant Version Control
+    description: Git-powered version control and automated backup for your Home Assistant
+      configuration files.
+    version: 1.6.1
+    arch:
+    - aarch64
+    - amd64
+    - armhf
+    - armv7
+    - i386
+    image: source
+    permissions:
+    - hassio_api
+    - hassio_role:manager
+    - homeassistant_api
+    - map_rw:all_addon_configs
+    - map_rw:config
+    - map_rw:media
+    - map_rw:share
+    risk: high
+    domains:
+    - api.github.com
+    - cdnjs.cloudflare.com
+    - feross.org
+    - git.example.com
+    - ko-fi.com
+    - opencollective.com
+    - paulmillr.com
+    - registry.npmjs.org
+    - www.patreon.com
+    error: null
+    dynamic: started
