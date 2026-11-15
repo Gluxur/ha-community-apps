@@ -79,3 +79,16 @@ def test_nightly_keeps_scan_when_fetch_fails(tmp_path, monkeypatch):
     assert json.loads((tmp_path / "flagged.json").read_text()) == [
         {"repository": "a/b", "file": "catalog/repositories/a/b.yaml", "changes": ["repository unavailable"]}
     ]
+
+
+def test_pending_lists_entries_without_status(tmp_path, monkeypatch, capsys):
+    from tools.catalog import __main__ as cli
+
+    monkeypatch.chdir(tmp_path)
+    base = tmp_path / "catalog/repositories"
+    (base / "a").mkdir(parents=True)
+    (base / "c").mkdir()
+    (base / "a/b.yaml").write_text("repository: a/b\nadded_by: catalog\n", encoding="utf-8")
+    cli.write_entry(base / "c/d.yaml", {"repository": "c/d", "status": "approved"})
+    assert main(["pending"]) == 0
+    assert capsys.readouterr().out.split() == ["catalog/repositories/a/b.yaml"]
