@@ -92,3 +92,30 @@ def test_pending_lists_entries_without_status(tmp_path, monkeypatch, capsys):
     cli.write_entry(base / "c/d.yaml", {"repository": "c/d", "status": "approved"})
     assert main(["pending"]) == 0
     assert capsys.readouterr().out.split() == ["catalog/repositories/a/b.yaml"]
+
+
+def test_scan_dynamic_budget_runs_high_risk_first(monkeypatch, tmp_path):
+    from tools.catalog import __main__ as cli
+    from tools.catalog import dynamic_scan
+
+    repo = tmp_path / "src"
+    for slug, extra in (("a_low", ""), ("b_high", "docker_api: true\n"), ("c_med", "host_network: true\n")):
+        (repo / slug).mkdir(parents=True)
+        (repo / slug / "config.yaml").write_text(f"slug: {slug}\nname: {slug}\nversion: '1'\narch: [amd64]\n{extra}", encoding="utf-8")
+    (repo / "repository.yaml").write_text("name: x\n", encoding="utf-8")
+
+    def fake_git(*args, cwd=None):
+        if args[0] == "clone":
+            import shutil
+            shutil.copytree(repo, args[-1])
+        return "c0ffee"
+
+    clock = iter([0, 0, 100, 200, 300])
+    ran = []
+    monkeypatch.setattr(cli, "_git", fake_git)
+    monkeypatch.setattr(cli.time, "monotonic", lambda: next(clock))
+    monkeypatch.setattr(dynamic_scan, "run_app", lambda d, c, timeout=180: ran.append(c["slug"]) or {"status": "started", "domains": []})
+    result = cli.scan("o/r", dynamic=True, dynamic_budget=150)
+    assert ran == ["b_high", "c_med"]
+    status = {a["slug"]: a["dynamic"] for a in result["apps"]}
+    assert status == {"a_low": "skipped", "b_high": "started", "c_med": "started"}

@@ -196,7 +196,7 @@ class CommunityAppsPanel extends HTMLElement {
     const dynamic = {
       started: "The app was started for a few minutes in an isolated network; the domains above include what it looked up.",
       failed: "The app did not keep running without its configuration, so only domains found in its code are listed.",
-      skipped: "The app was not started (architecture not tested), so only domains found in its code are listed.",
+      skipped: "The app was not started (architecture not tested, or the time budget for this repository was used by riskier apps), so only domains found in its code are listed.",
     }[app.dynamic || "skipped"];
     const reviewed = repo.reviewed
       ? `Reviewed on entry on ${esc(fmtDate(repo.reviewed.at))} by ${esc(repo.reviewed.by)}. Last scan ${esc(fmtDate(repo.scan?.at))}.`

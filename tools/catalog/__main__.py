@@ -9,6 +9,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -22,6 +23,9 @@ from .compare import signal_changes
 from .model import ENTRY_DIR, check_pr_paths, is_allowed_submitter, load_entry, validate_entry
 from .report import render_report
 from .static_scan import load_config, scan_repository
+
+DYNAMIC_BUDGET = 45 * 60  # seconds of dynamic runs per repository
+_RISK_ORDER = {"high": 0, "medium": 1, "low": 2}
 
 KEY_ORDER = ("repository", "added_by", "status", "reviewed", "removed_reason", "scan", "pending_scan")
 
@@ -73,8 +77,14 @@ def is_archived(full_name: str) -> bool:
         return False
 
 
-def scan(full_name: str, ref: str | None = None, dynamic: bool = False, only: str | None = None) -> dict[str, Any]:
-    """Clone and scan a repository; with `dynamic`, also run each app."""
+def scan(
+    full_name: str,
+    ref: str | None = None,
+    dynamic: bool = False,
+    only: str | None = None,
+    dynamic_budget: float = DYNAMIC_BUDGET,
+) -> dict[str, Any]:
+    """Clone and scan a repository; with `dynamic`, also run apps, riskiest first, within a time budget."""
     with tempfile.TemporaryDirectory(prefix="cascan-") as tmp:
         root = Path(tmp) / "repo"
         url = f"https://github.com/{full_name}"
@@ -100,10 +110,14 @@ def scan(full_name: str, ref: str | None = None, dynamic: bool = False, only: st
             result["apps"] = [a for a in result["apps"] if a["slug"] == only]
         for app in result["apps"]:
             app["dynamic"] = "skipped"
-            if dynamic and not app["error"]:
-                from .dynamic_scan import run_app
+        if dynamic:
+            from . import dynamic_scan
 
-                run = run_app(root / app["path"], load_config(root / app["path"]))
+            started = time.monotonic()
+            for app in sorted(result["apps"], key=lambda a: _RISK_ORDER.get(a["risk"], 3)):
+                if app["error"] or time.monotonic() - started >= dynamic_budget:
+                    continue
+                run = dynamic_scan.run_app(root / app["path"], load_config(root / app["path"]))
                 app["dynamic"] = run["status"]
                 app["domains"] = sorted(set(app["domains"]) | set(run["domains"]))
     return {"repository": full_name, "commit": commit, "at": _now(), "errors": result["errors"], "apps": result["apps"]}
