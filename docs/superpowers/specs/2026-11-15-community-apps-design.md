@@ -1,6 +1,6 @@
 # Community Apps — design
 
-Date : 2026-11-15 · Auteur : Gluxur · Statut : brouillon, à approuver
+Date : 2026-11-15 · Auteur : Gluxur · Statut : approuvé le 2026-11-15
 
 ## Intention
 
@@ -88,6 +88,10 @@ Choix de Gluxur : **A**.
 - Relecture humaine + GitHub Action qui détecte les communications vers l'extérieur.
 - Relecture à l'entrée seulement, rescan à chaque version.
 - Approche A.
+- **Amorçage au lancement** : exception à la règle « seul l'auteur soumet ». Gluxur ajoute
+  lui-même une dizaine de dépôts connus, relus par lui, marqués `added_by: catalog` (affiché
+  « ajouté par le catalogue » dans le panneau). Retrait sur simple demande de l'auteur
+  (issue), sans discussion. Hors lancement, la règle normale s'applique.
 - Nouveau répertoire, nouveau dépôt **public** GitHub sous **Gluxur**, commits signés
   `Gluxur <5436326+Gluxur@users.noreply.github.com>`.
 
@@ -118,6 +122,7 @@ repository: owner/repo
 
 Complété par l'automatisation et le relecteur (jamais par l'auteur) :
 ```yaml
+added_by: author        # author | catalog (amorçage au lancement)
 status: approved        # pending | approved | flagged | removed
 reviewed:
   by: Gluxur
