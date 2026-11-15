@@ -31,9 +31,15 @@ BUILD_FILES = ("build.yaml", "build.yml", "build.json")
 _QUERY = re.compile(r"query\[[A-Z]+\]\s+(\S+)\s+from\s")
 
 
+# Supervisor-internal hostnames: outside the Supervisor the resolver appends the
+# host's search domain (supervisor.home, homeassistant.<cloud>.net...).
+_INTERNAL_FIRST_LABELS = {"supervisor", "homeassistant", "hassio"}
+
+
 def parse_dnsmasq_log(text: str) -> list[str]:
     """Names queried in a dnsmasq log, noise removed."""
-    return filter_domains(set(_QUERY.findall(text)))
+    names = {n for n in _QUERY.findall(text) if n.lower().split(".", 1)[0] not in _INTERNAL_FIRST_LABELS}
+    return filter_domains(names)
 
 
 def image_for(app_dir: Path, config: dict[str, Any], arch: str = "amd64") -> tuple[str, str] | None:
@@ -55,6 +61,14 @@ def image_for(app_dir: Path, config: dict[str, Any], arch: str = "amd64") -> tup
 
 def _docker(*args: str, timeout: int = 600, check: bool = True) -> subprocess.CompletedProcess[str]:
     return subprocess.run(["docker", *args], capture_output=True, text=True, timeout=timeout, check=check)
+
+
+def _cleanup(*args: str) -> None:
+    """Best-effort removal; never masks the scan result."""
+    try:
+        _docker(*args, timeout=120, check=False)
+    except (subprocess.SubprocessError, OSError):
+        pass
 
 
 def run_app(app_dir: Path, config: dict[str, Any], timeout: int = 180) -> dict[str, Any]:
@@ -96,7 +110,7 @@ def run_app(app_dir: Path, config: dict[str, Any], timeout: int = 180) -> dict[s
     except (subprocess.SubprocessError, OSError):
         return {"status": "failed", "domains": []}
     finally:
-        _docker("rm", "-f", app, dns, check=False)
+        _cleanup("rm", "-f", app, dns)
         if built:
-            _docker("rmi", "-f", image, check=False)
-        _docker("network", "rm", network, check=False)
+            _cleanup("rmi", "-f", image)
+        _cleanup("network", "rm", network)

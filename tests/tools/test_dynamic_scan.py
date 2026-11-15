@@ -30,3 +30,26 @@ def test_image_for_build_without_build_file(tmp_path):
 
 def test_image_for_unsupported_arch(tmp_path):
     assert image_for(tmp_path, {"arch": ["aarch64"], "image": "x/{arch}"}) is None
+
+
+def test_run_app_without_docker_reports_failed(tmp_path, monkeypatch):
+    import subprocess
+
+    from tools.catalog import dynamic_scan
+
+    def missing(*args, **kwargs):
+        raise FileNotFoundError("docker")
+
+    monkeypatch.setattr(subprocess, "run", missing)
+    config = {"arch": ["amd64"], "image": "x/{arch}", "version": "1"}
+    assert dynamic_scan.run_app(tmp_path, config, timeout=1) == {"status": "failed", "domains": []}
+
+
+def test_parse_ignores_supervisor_internal_names():
+    log = (
+        "dnsmasq[1]: query[A] supervisor.home from 10.0.0.2\n"
+        "dnsmasq[1]: query[A] homeassistant.internal.cloudapp.net from 10.0.0.2\n"
+        "dnsmasq[1]: query[A] hassio.lan from 10.0.0.2\n"
+        "dnsmasq[1]: query[A] supervisor.example.net from 10.0.0.2\n"
+    )
+    assert parse_dnsmasq_log(log) == []
