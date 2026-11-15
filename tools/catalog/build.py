@@ -10,10 +10,8 @@ _PUBLIC = ("approved", "flagged")
 
 
 def _public_scan(scan: dict[str, Any] | None) -> dict[str, Any] | None:
-    if not isinstance(scan, dict):
-        return scan
-    apps = [{k: v for k, v in app.items() if k != "path"} for app in scan.get("apps") or []]
-    return {**scan, "apps": apps}
+    # App paths stay public: the panel uses them to load each app's README.
+    return scan
 
 
 def build_catalog(

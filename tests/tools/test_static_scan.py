@@ -87,3 +87,9 @@ def test_api_access_is_medium():
     assert permissions({"homeassistant_api": True, "hassio_api": True}) == ["hassio_api", "homeassistant_api"]
     assert risk(["homeassistant_api"], "source") == "medium"
     assert risk(["hassio_api"], "source") == "medium"
+
+
+def test_scan_records_description():
+    apps = _by_slug(scan_repository(FIX / "repo_ok"))
+    assert apps["app_a"]["description"] == "Shows the weather"
+    assert apps["app_b"]["description"] == ""

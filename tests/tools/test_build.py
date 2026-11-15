@@ -24,7 +24,7 @@ def test_build_filters_and_shapes():
     assert repos[0]["added_by"] == "author"
     assert repos[1] == {"repository": "m/removed", "status": "removed", "removed_reason": "asked by author"}
     assert repos[2]["added_by"] == "catalog"
-    assert "path" not in repos[2]["scan"]["apps"][0]
+    assert repos[2]["scan"]["apps"][0]["path"] == "x"  # the panel needs it to find the README
 
 
 def test_build_adds_repository_stats():
