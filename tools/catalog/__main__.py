@@ -225,7 +225,7 @@ def cmd_nightly(args: argparse.Namespace) -> int:
         if head is None or is_archived(name):
             flagged.append({"repository": name, "file": path.as_posix(), "changes": ["repository unavailable"]})
             continue
-        if head == (entry.get("scan") or {}).get("commit"):
+        if head == (entry.get("scan") or {}).get("commit") and not args.force:
             continue
         result = scan(name, head, args.dynamic)
         if not result["commit"]:
@@ -300,6 +300,7 @@ def parser() -> argparse.ArgumentParser:
 
     s = sub.add_parser("nightly", help="rescan approved entries whose repository changed")
     s.add_argument("--dynamic", action="store_true")
+    s.add_argument("--force", action="store_true", help="rescan even when the repository did not change")
     s.add_argument("--flagged-out", required=True)
     s.set_defaults(func=cmd_nightly)
 
