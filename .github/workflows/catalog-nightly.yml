@@ -13,7 +13,6 @@ on:
 permissions:
   contents: write
   issues: write
-  actions: write
 
 concurrency:
   group: catalog-write
@@ -22,33 +21,21 @@ concurrency:
 jobs:
   rescan:
     runs-on: ubuntu-latest
-    timeout-minutes: 300
+    timeout-minutes: 340
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
+          # Deploy key allowed to bypass the main ruleset; its pushes also
+          # trigger "Publish catalog". Never exposed to pull_request runs.
           ssh-key: ${{ secrets.CATALOG_DEPLOY_KEY }}
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.13"
       - run: pip install pyyaml==6.0.3
-      - name: Rescan
+      - name: Rescan, commit and flag entry by entry
         env:
+          GH_TOKEN: ${{ github.token }}
           GITHUB_TOKEN: ${{ github.token }}
           FORCE: ${{ inputs.force && '--force' || '' }}
-        run: python -m tools.catalog nightly --dynamic $FORCE --flagged-out /tmp/flagged.json
-      - name: Commit
-        run: |
-          if [ -n "$(git status --porcelain catalog)" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add catalog
-            git commit -m "catalog: nightly rescan"
-            git push
-          fi
-      - name: Open issues for flagged repositories
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python .github/scripts/flagged-issues.py /tmp/flagged.json
-      - run: gh workflow run pages.yml --ref main
-        env:
-          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/nightly.sh

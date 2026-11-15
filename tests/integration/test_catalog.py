@@ -86,3 +86,14 @@ def test_keep_last_good(catalog):
     assert kept == {"repos": [_repo()], "catalog_error": "HTTP 500", "fetched_at": "T1"}
     with pytest.raises(catalog.CatalogError):
         catalog.keep_last_good(None, None, "HTTP 500", "T2")
+
+
+def test_merge_state_exact_store_slug(catalog):
+    repos = [_repo(apps=[_app("proxy"), _app("nginx_proxy")])]
+    store_addons = [{"slug": "abc123_nginx_proxy", "repository": "abc123"}, {"slug": "abc123_proxy", "repository": "abc123"}]
+    installed = [{"slug": "abc123_nginx_proxy", "repository": "abc123"}]
+    apps = catalog.merge_state(repos, STORE, installed, store_addons, ["amd64"])[0]["scan"]["apps"]
+    assert [(a["slug"], a["store_slug"], a["installed"]) for a in apps] == [
+        ("proxy", "abc123_proxy", False),
+        ("nginx_proxy", "abc123_nginx_proxy", True),
+    ]

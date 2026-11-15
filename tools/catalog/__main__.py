@@ -146,16 +146,20 @@ def _stored_scan(scan_result: dict[str, Any]) -> dict[str, Any]:
 def cmd_validate(args: argparse.Namespace) -> int:
     errors = check_pr_paths(args.changed)
     owners = reviewers()
+    is_reviewer = args.author.lower() in {o.lower() for o in owners}
     for changed in args.changed:
         path = Path(changed)
-        if not changed.startswith(f"{ENTRY_DIR}/") or not path.is_file():
+        if not changed.startswith(f"{ENTRY_DIR}/"):
+            continue
+        if not path.is_file():
+            if not is_reviewer:
+                errors.append(f"{changed}: entries are not deleted; a maintainer sets `status: removed` with a `removed_reason`")
             continue
         try:
             entry = load_entry(path)
         except (ValueError, yaml.YAMLError) as err:
             errors.append(f"{changed}: {type(err).__name__}")
             continue
-        is_reviewer = args.author.lower() in {o.lower() for o in owners}
         # Reviewers may edit full entries (re-approve, remove); others only submit.
         submitted = not (is_reviewer and "status" in entry)
         errors += [f"{changed}: {e}" for e in validate_entry(entry, changed, submitted=submitted)]
@@ -216,7 +220,8 @@ def cmd_approve(args: argparse.Namespace) -> int:
 
 def cmd_nightly(args: argparse.Namespace) -> int:
     flagged: list[dict[str, Any]] = []
-    for path in sorted(Path(ENTRY_DIR).glob("*/*.yaml")):
+    paths = [Path(args.only)] if args.only else sorted(Path(ENTRY_DIR).glob("*/*.yaml"))
+    for path in paths:
         entry = load_entry(path)
         if entry.get("status") != "approved":
             continue
@@ -227,7 +232,11 @@ def cmd_nightly(args: argparse.Namespace) -> int:
             continue
         if head == (entry.get("scan") or {}).get("commit") and not args.force:
             continue
-        result = scan(name, head, args.dynamic)
+        try:
+            result = scan(name, head, args.dynamic)
+        except Exception as err:  # one broken third-party repository must not stop the run
+            flagged.append({"repository": name, "file": path.as_posix(), "changes": [f"scan failed ({type(err).__name__})"]})
+            continue
         if not result["commit"]:
             # Fetch failed: keep the recorded scan, tell the reviewer.
             flagged.append({"repository": name, "file": path.as_posix(), "changes": ["repository unavailable"]})
@@ -241,6 +250,14 @@ def cmd_nightly(args: argparse.Namespace) -> int:
             flagged.append({"repository": name, "file": path.as_posix(), "changes": changes})
         write_entry(path, entry)
     Path(args.flagged_out).write_text(json.dumps(flagged, indent=2), encoding="utf-8")
+    return 0
+
+
+def cmd_approved(args: argparse.Namespace) -> int:
+    """Approved entry files (the ones the nightly rescans)."""
+    for path in sorted(Path(ENTRY_DIR).glob("*/*.yaml")):
+        if load_entry(path).get("status") == "approved":
+            print(path.as_posix())
     return 0
 
 
@@ -264,7 +281,7 @@ def cmd_build(args: argparse.Namespace) -> int:
 
 def parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="python -m tools.catalog")
-    sub = p.add_subparsers(dest="command", required=True, metavar="{validate,scan,report,apply-review,approve,nightly,pending,build}")
+    sub = p.add_subparsers(dest="command", required=True, metavar="{validate,scan,report,apply-review,approve,nightly,approved,pending,build}")
 
     s = sub.add_parser("validate", help="check a catalog pull request")
     s.add_argument("--author", required=True)
@@ -301,8 +318,12 @@ def parser() -> argparse.ArgumentParser:
     s = sub.add_parser("nightly", help="rescan approved entries whose repository changed")
     s.add_argument("--dynamic", action="store_true")
     s.add_argument("--force", action="store_true", help="rescan even when the repository did not change")
+    s.add_argument("--only", help="rescan only this entry file")
     s.add_argument("--flagged-out", required=True)
     s.set_defaults(func=cmd_nightly)
+
+    s = sub.add_parser("approved", help="list approved entries")
+    s.set_defaults(func=cmd_approved)
 
     s = sub.add_parser("pending", help="list merged entries not yet recorded")
     s.set_defaults(func=cmd_pending)

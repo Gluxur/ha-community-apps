@@ -87,7 +87,8 @@ def merge_state(
         merged["store_slug"] = store_slug
         repo_addons = {str(a.get("slug")) for a in store_addons if store_slug and a.get("repository") == store_slug}
         for app in _apps(merged):
-            slug = next((s for s in repo_addons if s.endswith(f"_{app.get('slug')}")), None)
+            wanted = f"{store_slug}_{app.get('slug')}" if store_slug else None
+            slug = wanted if wanted in repo_addons else None
             app["installed"] = slug in installed_slugs if slug else False
             app["compatible"] = bool(set(app.get("arch") or []) & set(host_archs))
             app["store_slug"] = slug

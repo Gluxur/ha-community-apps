@@ -53,3 +53,10 @@ def test_parse_ignores_supervisor_internal_names():
         "dnsmasq[1]: query[A] supervisor.example.net from 10.0.0.2\n"
     )
     assert parse_dnsmasq_log(log) == []
+
+
+def test_image_for_malformed_build_file(tmp_path):
+    (tmp_path / "build.yaml").write_text("build_from: ghcr.io/x/base\n", encoding="utf-8")
+    assert image_for(tmp_path, {"arch": ["amd64"]}) == ("build", "")
+    (tmp_path / "build.yaml").write_text("build_from: [unclosed\n", encoding="utf-8")
+    assert image_for(tmp_path, {"arch": ["amd64"]}) == ("build", "")

@@ -181,3 +181,54 @@ def test_nightly_force_rescans_unchanged_head(tmp_path, monkeypatch):
     assert main(["nightly", "--force", "--flagged-out", "f.json"]) == 0
     data = yaml.safe_load(entry.read_text(encoding="utf-8"))
     assert data["status"] == "approved" and data["scan"]["apps"][0]["description"] == "Hello"
+
+
+def test_validate_rejects_entry_deletion_by_non_reviewer(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "CODEOWNERS").write_text("/catalog/ @Gluxur\n", encoding="utf-8")
+    args = ["validate", "--permission", "none", "--changed", "catalog/repositories/a/b.yaml"]
+    assert main(args + ["--author", "stranger"]) == 1
+    assert "status: removed" in capsys.readouterr().err
+    assert main(args + ["--author", "gluxur"]) == 0
+
+
+def test_nightly_survives_scan_crash_and_only(tmp_path, monkeypatch):
+    from tools.catalog import __main__ as cli
+
+    monkeypatch.chdir(tmp_path)
+    for name in ("a/b", "c/d"):
+        entry = tmp_path / f"catalog/repositories/{name}.yaml"
+        entry.parent.mkdir(parents=True, exist_ok=True)
+        cli.write_entry(entry, {"repository": name, "status": "approved", "reviewed": {"by": "G", "at": "d", "commit": "old"},
+                                "scan": {"commit": "old", "at": "x", "apps": []}})
+    monkeypatch.setattr(cli, "remote_head", lambda name: "new")
+    monkeypatch.setattr(cli, "is_archived", lambda name: False)
+
+    def scan(name, *a, **k):
+        if name == "a/b":
+            raise AttributeError("boom")
+        return {"repository": name, "commit": "new", "at": "y", "errors": [], "apps": []}
+
+    monkeypatch.setattr(cli, "scan", scan)
+    assert main(["nightly", "--flagged-out", "f.json"]) == 0
+    flagged = json.loads((tmp_path / "f.json").read_text())
+    assert flagged == [{"repository": "a/b", "file": "catalog/repositories/a/b.yaml", "changes": ["scan failed (AttributeError)"]}]
+    assert yaml.safe_load((tmp_path / "catalog/repositories/c/d.yaml").read_text())["scan"]["commit"] == "new"
+    # --only limits the run to one entry
+    monkeypatch.setattr(cli, "remote_head", lambda name: "newer")
+    seen = []
+    monkeypatch.setattr(cli, "scan", lambda name, *a, **k: seen.append(name) or {"repository": name, "commit": "newer", "at": "z", "errors": [], "apps": []})
+    assert main(["nightly", "--only", "catalog/repositories/c/d.yaml", "--flagged-out", "f.json"]) == 0
+    assert seen == ["c/d"]
+
+
+def test_approved_lists_approved_entries(tmp_path, monkeypatch, capsys):
+    from tools.catalog import __main__ as cli
+
+    monkeypatch.chdir(tmp_path)
+    for name, status in (("a/b", "approved"), ("c/d", "flagged")):
+        entry = tmp_path / f"catalog/repositories/{name}.yaml"
+        entry.parent.mkdir(parents=True, exist_ok=True)
+        cli.write_entry(entry, {"repository": name, "status": status})
+    assert main(["approved"]) == 0
+    assert capsys.readouterr().out.split() == ["catalog/repositories/a/b.yaml"]

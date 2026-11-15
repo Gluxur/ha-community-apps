@@ -299,13 +299,21 @@ class CommunityAppsPanel extends HTMLElement {
       });
       this._added[repository] = { apps: result.apps };
       this._confirming = null;
-      this._data = await this._hass.callWS({ type: "community_apps/list" });
     } catch (err) {
       if (err?.code === "confirmation_required") {
         this._confirming = repository;
       } else {
         this._added[repository] = { error: err?.message || String(err) };
       }
+      this._busy = null;
+      this._render();
+      return;
+    }
+    // The repository is added; a failed refresh only means the list is stale.
+    try {
+      this._data = await this._hass.callWS({ type: "community_apps/list" });
+    } catch (err) {
+      this._error = null;
     }
     this._busy = null;
     this._render();
@@ -813,11 +821,20 @@ class CommunityAppsPanel extends HTMLElement {
     const q = root.getElementById("q");
     q?.addEventListener("input", (e) => {
       this._query = e.target.value;
-      const pos = e.target.selectionStart;
-      this._render();
-      const again = this.shadowRoot.getElementById("q");
-      again.focus();
-      again.setSelectionRange(pos, pos);
+      if (e.isComposing) return; // IME: wait for compositionend
+      clearTimeout(this._searchTimer);
+      // Debounced: one render after typing pauses, not one per key.
+      this._searchTimer = setTimeout(() => {
+        const input = this.shadowRoot.getElementById("q");
+        const pos = input?.selectionStart ?? this._query.length;
+        this._render();
+        const again = this.shadowRoot.getElementById("q");
+        again?.focus();
+        again?.setSelectionRange(pos, pos);
+      }, 200);
+    });
+    q?.addEventListener("compositionend", (e) => {
+      q.dispatchEvent(new Event("input"));
     });
     on("#filters-toggle", "click", () => {
       this._filtersOpen = !this._filtersOpen;
