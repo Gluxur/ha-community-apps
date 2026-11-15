@@ -24,7 +24,7 @@ def _sorted(mode):
         + PANEL.read_text(encoding="utf-8")
         + f"\nconsole.log(JSON.stringify(sortRows({json.dumps(ROWS)}, {json.dumps(mode)}).map(r => r.app.name)));"
     )
-    out = subprocess.run(["node", "--input-type=module", "-e", script], capture_output=True, text=True, check=True)
+    out = subprocess.run(["node", "--input-type=module"], input=script, capture_output=True, text=True, encoding="utf-8", check=True)
     return json.loads(out.stdout)
 
 
@@ -52,7 +52,7 @@ def _call(expr):
         + PANEL.read_text(encoding="utf-8")
         + f"\nconsole.log(JSON.stringify({expr}));"
     )
-    out = subprocess.run(["node", "--input-type=module", "-e", script], capture_output=True, text=True, check=True)
+    out = subprocess.run(["node", "--input-type=module"], input=script, capture_output=True, text=True, encoding="utf-8", check=True)
     return json.loads(out.stdout)
 
 

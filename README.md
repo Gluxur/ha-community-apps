@@ -28,8 +28,8 @@ Home Assistant Container and Core have no app store.
 
 ## Using the page
 
-- Search apps, filter by risk, show only apps that run on your system.
-- Sort like the Marketplace: GitHub stars (default), recent activity, name, or risk.
+- Same layout as the Marketplace: **Discover** (popular, recently updated, new in the catalog), **Browse** (table with filters by status, risk and source, group by status, risk or repository, sort by stars, activity, name, risk, status or repository, customizable columns) and **Installed**.
+- Only apps that run on your system are shown by default.
 - Open an app to read its description and README (loaded from GitHub, written by the app's author) and see **what it can do** (each sensitive permission explained), the **domains
   it contacts**, whether the image is prebuilt or built on your system, and when it was
   reviewed.
