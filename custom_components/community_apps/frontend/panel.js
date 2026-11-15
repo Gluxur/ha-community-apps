@@ -30,6 +30,29 @@ const MAP_LABELS = {
   backup: "backups",
 };
 const RISK_ORDER = { high: 0, medium: 1, low: 2 };
+const SORTS = {
+  stars: "GitHub stars",
+  updated: "Recent activity",
+  name: "Name",
+  risk: "Risk (highest first)",
+};
+
+const byName = (a, b) => String(a.app.name).localeCompare(String(b.app.name), undefined, { sensitivity: "base" });
+const time = (value) => {
+  const t = Date.parse(value || "");
+  return Number.isNaN(t) ? -Infinity : t;
+};
+
+// rows: [{repo, app}]; repositories without stars or date sort last.
+export function sortRows(rows, mode) {
+  const compare = {
+    stars: (a, b) => (b.repo.stars ?? -1) - (a.repo.stars ?? -1),
+    updated: (a, b) => time(b.repo.updated_at) - time(a.repo.updated_at),
+    risk: (a, b) => (RISK_ORDER[a.app.risk] ?? 3) - (RISK_ORDER[b.app.risk] ?? 3),
+    name: () => 0,
+  }[mode] || (() => 0);
+  return [...rows].sort((a, b) => compare(a, b) || byName(a, b));
+}
 
 const esc = (value) =>
   String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -58,6 +81,13 @@ class CommunityAppsPanel extends HTMLElement {
     this._query = "";
     this._risk = "all";
     this._compatibleOnly = true;
+    this._sort = "stars";
+    try {
+      const saved = localStorage.getItem("community-apps-sort");
+      if (saved && saved in SORTS) this._sort = saved;
+    } catch (err) {
+      // storage unavailable: keep the default
+    }
     this._selected = null; // {repository, slug}
     this._confirming = null; // repository awaiting high-risk confirmation
     this._busy = null;
@@ -131,14 +161,20 @@ class CommunityAppsPanel extends HTMLElement {
       }
     }
     const q = this._query.trim().toLowerCase();
-    return rows
-      .filter(({ repo, app }) => {
-        if (this._risk !== "all" && app.risk !== this._risk) return false;
-        if (this._compatibleOnly && !app.compatible) return false;
-        if (!q) return true;
-        return [app.name, app.slug, repo.repository, app.description].some((v) => String(v || "").toLowerCase().includes(q));
-      })
-      .sort((a, b) => String(a.app.name).localeCompare(String(b.app.name)));
+    const filtered = rows.filter(({ repo, app }) => {
+      if (this._risk !== "all" && app.risk !== this._risk) return false;
+      if (this._compatibleOnly && !app.compatible) return false;
+      if (!q) return true;
+      return [app.name, app.slug, repo.repository, app.description].some((v) => String(v || "").toLowerCase().includes(q));
+    });
+    return sortRows(filtered, this._sort);
+  }
+
+  _stats(repo) {
+    const parts = [];
+    if (typeof repo.stars === "number") parts.push(`★ ${repo.stars.toLocaleString()}`);
+    if (repo.updated_at) parts.push(`updated ${esc(fmtDate(repo.updated_at))}`);
+    return parts.join(" · ");
   }
 
   _riskChip(risk) {
@@ -163,6 +199,7 @@ class CommunityAppsPanel extends HTMLElement {
         <button class="card app" data-repo="${esc(repo.repository)}" data-slug="${esc(app.slug)}">
           <div class="row"><span class="name">${esc(app.name)}</span>${this._riskChip(app.risk)}</div>
           <div class="repo">${esc(repo.repository)}${app.version ? ` · ${esc(app.version)}` : ""}</div>
+          ${this._stats(repo) ? `<div class="repo">${this._stats(repo)}</div>` : ""}
           <div class="badges">${this._badges(repo, app)}</div>
         </button>`
       )
@@ -173,6 +210,9 @@ class CommunityAppsPanel extends HTMLElement {
         <input id="q" type="search" placeholder="Search apps" value="${esc(this._query)}" aria-label="Search apps">
         <select id="risk" aria-label="Risk">
           ${["all", "low", "medium", "high"].map((r) => `<option value="${r}" ${this._risk === r ? "selected" : ""}>${r === "all" ? "All risks" : `${r} risk`}</option>`).join("")}
+        </select>
+        <select id="sort" aria-label="Sort by">
+          ${Object.entries(SORTS).map(([value, label]) => `<option value="${value}" ${this._sort === value ? "selected" : ""}>Sort by: ${label}</option>`).join("")}
         </select>
         <label class="toggle"><input id="compat" type="checkbox" ${this._compatibleOnly ? "checked" : ""}> Only apps for this system</label>
       </div>
@@ -207,6 +247,7 @@ class CommunityAppsPanel extends HTMLElement {
       <div class="card detail">
         <div class="row"><h2>${esc(app.name)}</h2>${this._riskChip(app.risk)}</div>
         <div class="repo">${esc(repo.repository)}${app.version ? ` · version ${esc(app.version)}` : ""} · ${app.image === "prebuilt" ? "prebuilt image" : "built from source on your system"}</div>
+        ${this._stats(repo) ? `<div class="repo">${this._stats(repo)}</div>` : ""}
         <div class="badges">${this._badges(repo, app)}</div>
         ${repo.status === "flagged" ? '<p class="warn">This repository changed since it was reviewed (new permissions, higher risk or new domains). It is back in review; adding it is paused.</p>' : ""}
         <h3>What it can do</h3>${perms}
@@ -332,6 +373,15 @@ class CommunityAppsPanel extends HTMLElement {
     }
     root.getElementById("risk")?.addEventListener("change", (e) => {
       this._risk = e.target.value;
+      this._render();
+    });
+    root.getElementById("sort")?.addEventListener("change", (e) => {
+      this._sort = e.target.value in SORTS ? e.target.value : "stars";
+      try {
+        localStorage.setItem("community-apps-sort", this._sort);
+      } catch (err) {
+        // storage unavailable: choice lasts for this page only
+      }
       this._render();
     });
     root.getElementById("compat")?.addEventListener("change", (e) => {

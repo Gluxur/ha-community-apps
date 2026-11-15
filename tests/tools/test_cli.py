@@ -119,3 +119,45 @@ def test_scan_dynamic_budget_runs_high_risk_first(monkeypatch, tmp_path):
     assert ran == ["b_high", "c_med"]
     status = {a["slug"]: a["dynamic"] for a in result["apps"]}
     assert status == {"a_low": "skipped", "b_high": "started", "c_med": "started"}
+
+
+def test_build_uses_repository_stats(tmp_path, monkeypatch):
+    from tools.catalog import __main__ as cli
+
+    monkeypatch.chdir(tmp_path)
+    entry = tmp_path / "catalog/repositories/a/b.yaml"
+    entry.parent.mkdir(parents=True)
+    cli.write_entry(entry, {"repository": "a/b", "status": "approved",
+                            "reviewed": {"by": "G", "at": "d", "commit": "c"}, "scan": {"commit": "c", "at": "x", "apps": []}})
+    seen = []
+    monkeypatch.setattr(cli, "fetch_stats", lambda names: seen.append(names) or {"a/b": {"stars": 7, "updated_at": "2026-11-01T00:00:00Z"}})
+    assert main(["build", "--out", "site/catalog.json"]) == 0
+    repo = json.loads((tmp_path / "site/catalog.json").read_text())["repositories"][0]
+    assert seen == [["a/b"]] and repo["stars"] == 7
+
+
+def test_fetch_stats_skips_failures(monkeypatch):
+    import urllib.error
+
+    from tools.catalog import __main__ as cli
+
+    class Resp:
+        def __init__(self, body):
+            self.body = body
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def read(self):
+            return self.body
+
+    def fake_urlopen(request, timeout=30):
+        if request.full_url.endswith("/bad/repo"):
+            raise urllib.error.URLError("boom")
+        return Resp(b'{"stargazers_count": 5, "pushed_at": "2026-11-02T00:00:00Z"}')
+
+    monkeypatch.setattr(cli.urllib.request, "urlopen", fake_urlopen)
+    assert cli.fetch_stats(["good/repo", "bad/repo"]) == {"good/repo": {"stars": 5, "updated_at": "2026-11-02T00:00:00Z"}}

@@ -30,6 +30,8 @@ jobs:
           python-version: "3.13"
       - run: pip install pyyaml==6.0.3
       - run: python -m tools.catalog build --out site/catalog.json
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
