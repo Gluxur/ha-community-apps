@@ -1,2 +1,29 @@
 repository: mrlt8/docker-wyze-bridge
 added_by: catalog
+status: approved
+reviewed:
+  by: Gluxur
+  at: '2026-11-15'
+  commit: bf893749b748f142199c9bce14fac44f8a661d6e
+scan:
+  commit: bf893749b748f142199c9bce14fac44f8a661d6e
+  at: '2026-11-15T16:59:00Z'
+  apps:
+  - path: home_assistant
+    slug: docker_wyze_bridge
+    name: Docker Wyze Bridge
+    version: 2.10.3
+    arch:
+    - armv7
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - apparmor_disabled
+    - hassio_api
+    - map_rw:addon_config
+    - map_rw:media
+    risk: medium
+    domains: []
+    error: null
+    dynamic: started
