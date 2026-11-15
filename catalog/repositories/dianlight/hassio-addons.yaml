@@ -7,11 +7,12 @@ reviewed:
   commit: 94aede424129fa273ac54086600e9a02b0626d83
 scan:
   commit: 94aede424129fa273ac54086600e9a02b0626d83
-  at: '2026-11-15T16:24:30Z'
+  at: '2026-11-15T17:40:22Z'
   apps:
   - path: RPiMySensor
     slug: rpi-mysensor-gw
     name: RPi MySensor Gateway
+    description: Raspberry Pi MySensor Gateway SPI add-on!
     version: 0.0.25
     arch:
     - armhf
@@ -36,6 +37,7 @@ scan:
   - path: plex
     slug: plex
     name: Plex Media Server with NAS | Deprecated
+    description: Recorded media, live TV, online news, and podcasts ready to stream.
     version: 2.4.2-dht3
     arch:
     - aarch64
@@ -56,6 +58,7 @@ scan:
   - path: sambanas
     slug: sambanas
     name: Samba NAS
+    description: Expose Home Assistant disc with SMB/CIFS
     version: 12.5.0-nas
     arch:
     - armv7
@@ -87,6 +90,7 @@ scan:
   - path: sambanas2
     slug: sambanas2
     name: Samba NAS2
+    description: Expose Home Assistant disc with SMB/CIFS
     version: 2026.10.1
     arch:
     - aarch64

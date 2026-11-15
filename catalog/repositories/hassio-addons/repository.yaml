@@ -7,11 +7,12 @@ reviewed:
   commit: c7657fd01bc83dc2bcdab219d5c5fe04e77ede71
 scan:
   commit: c7657fd01bc83dc2bcdab219d5c5fe04e77ede71
-  at: '2026-11-15T16:55:45Z'
+  at: '2026-11-15T18:00:10Z'
   apps:
   - path: actual-budget
     slug: actual-budget
     name: Actual Budget
+    description: Local-first personal finance and envelope budgeting
     version: 0.2.0
     arch:
     - aarch64
@@ -25,6 +26,7 @@ scan:
   - path: adguard
     slug: adguard
     name: AdGuard Home
+    description: Network-wide ads & trackers blocking DNS server
     version: 6.3.2
     arch:
     - aarch64
@@ -42,6 +44,7 @@ scan:
   - path: aircast
     slug: aircast
     name: AirCast
+    description: AirPlay capabilities for your Chromecast devices.
     version: 5.2.3
     arch:
     - aarch64
@@ -59,6 +62,7 @@ scan:
   - path: airsonos
     slug: airsonos
     name: AirSonos
+    description: AirPlay capabilities for your Sonos (and UPnP) devices.
     version: 5.2.3
     arch:
     - aarch64
@@ -76,6 +80,7 @@ scan:
   - path: appdaemon
     slug: appdaemon
     name: AppDaemon
+    description: Python Apps and Dashboard using AppDaemon 4.x for Home Assistant
     version: 0.19.3
     arch:
     - aarch64
@@ -95,6 +100,7 @@ scan:
   - path: audiobookshelf
     slug: audiobookshelf
     name: Audiobookshelf
+    description: Self-hosted audiobook and podcast server
     version: 0.2.2
     arch:
     - aarch64
@@ -110,6 +116,7 @@ scan:
   - path: bazarr
     slug: bazarr
     name: Bazarr
+    description: Download and manage subtitles for Sonarr and Radarr
     version: 0.7.0
     arch:
     - aarch64
@@ -126,6 +133,7 @@ scan:
   - path: bitwarden
     slug: bitwarden
     name: Vaultwarden
+    description: Open source password management solution
     version: 0.28.3
     arch:
     - aarch64
@@ -139,6 +147,7 @@ scan:
   - path: bookstack
     slug: bookstack
     name: Bookstack
+    description: Simple & Free Wiki Software
     version: 5.0.3
     arch:
     - aarch64
@@ -152,6 +161,7 @@ scan:
   - path: calibre-web
     slug: calibre-web
     name: Calibre-Web
+    description: Browse, read and download the ebooks in your Calibre library
     version: 0.1.0
     arch:
     - aarch64
@@ -167,6 +177,7 @@ scan:
   - path: chrony
     slug: chrony
     name: chrony
+    description: A local NTP (Network Time Protocol) server for cameras etc.
     version: 6.1.0
     arch:
     - aarch64
@@ -182,6 +193,8 @@ scan:
   - path: emqx
     slug: emqx
     name: EMQX
+    description: The most scalable MQTT broker for IoT. An alternative for the Mosquitto
+      app
     version: 0.10.1
     arch:
     - aarch64
@@ -197,6 +210,7 @@ scan:
   - path: example
     slug: example
     name: Example
+    description: Example app by Home Assistant Community Apps
     version: 14.0.1
     arch:
     - aarch64
@@ -210,6 +224,8 @@ scan:
   - path: file-explorer
     slug: file-explorer
     name: File Explorer
+    description: Browse, edit, upload and organize the files of your Home Assistant
+      installation
     version: 0.1.0
     arch:
     - aarch64
@@ -230,6 +246,7 @@ scan:
   - path: foldingathome
     slug: foldingathome
     name: Folding@home
+    description: Fighting disease with a world wide distributed super computer
     version: 1.0.0
     arch:
     - amd64
@@ -243,6 +260,7 @@ scan:
   - path: freshrss
     slug: freshrss
     name: FreshRSS
+    description: A free, self-hostable RSS and Atom feed aggregator
     version: 0.2.2
     arch:
     - aarch64
@@ -256,6 +274,7 @@ scan:
   - path: ftp
     slug: ftp
     name: FTP
+    description: A secure and fast FTP server for Home Assistant
     version: 7.0.0
     arch:
     - aarch64
@@ -278,6 +297,7 @@ scan:
   - path: glances
     slug: glances
     name: Glances
+    description: A cross-platform system monitoring tool
     version: 0.23.2
     arch:
     - aarch64
@@ -298,6 +318,7 @@ scan:
   - path: grafana
     slug: grafana
     name: Grafana
+    description: The open platform for beautiful analytics and monitoring
     version: 13.1.0
     arch:
     - aarch64
@@ -311,6 +332,8 @@ scan:
   - path: grocy
     slug: grocy
     name: Grocy
+    description: ERP beyond your fridge! A groceries & household management solution
+      for your home
     version: 0.26.5
     arch:
     - aarch64
@@ -324,6 +347,7 @@ scan:
   - path: homebox
     slug: homebox
     name: Homebox
+    description: Inventory and organization system for the things in your home
     version: 0.1.0
     arch:
     - aarch64
@@ -337,6 +361,7 @@ scan:
   - path: influxdb
     slug: influxdb
     name: InfluxDB v1
+    description: InfluxDB 1.x time series database with Chronograf and Kapacitor
     version: 6.0.1
     arch:
     - aarch64
@@ -352,6 +377,7 @@ scan:
   - path: jellyfin
     slug: jellyfin
     name: Jellyfin
+    description: The free software media system for your movies, shows and music
     version: 0.4.0
     arch:
     - aarch64
@@ -368,6 +394,8 @@ scan:
   - path: jupyterlab
     slug: jupyterlablite
     name: JupyterLab
+    description: Create documents containing live code, equations, visualizations,
+      and explanatory text
     version: 0.18.3
     arch:
     - aarch64
@@ -384,6 +412,7 @@ scan:
   - path: lidarr
     slug: lidarr
     name: Lidarr
+    description: Looks and smells like Sonarr but made for music
     version: 0.16.1
     arch:
     - aarch64
@@ -400,6 +429,7 @@ scan:
   - path: mealie
     slug: mealie
     name: Mealie
+    description: Recipe manager and meal planner for your kitchen
     version: 0.7.0
     arch:
     - aarch64
@@ -413,6 +443,7 @@ scan:
   - path: motioneye
     slug: motioneye
     name: motionEye
+    description: Simple, elegant and feature-rich CCTV/NVR for your cameras
     version: 0.24.1
     arch:
     - aarch64
@@ -431,6 +462,7 @@ scan:
   - path: mqtt-explorer
     slug: mqtt-explorer
     name: MQTT Explorer
+    description: Explore the topics and messages on your MQTT broker
     version: 0.1.0
     arch:
     - aarch64
@@ -444,6 +476,8 @@ scan:
   - path: mqtt-io
     slug: mqtt-io
     name: MQTT IO
+    description: Expose GPIO modules and digital sensors via MQTT for remote control
+      and monitoring.
     version: 0.5.0
     arch:
     - aarch64
@@ -464,6 +498,8 @@ scan:
   - path: n8n
     slug: n8n
     name: n8n
+    description: Workflow automation for technical people, with Home Assistant and
+      MQTT wired in
     version: 0.6.0
     arch:
     - aarch64
@@ -481,6 +517,7 @@ scan:
   - path: nginxproxymanager
     slug: nginxproxymanager
     name: Nginx Proxy Manager
+    description: Manage Nginx proxy hosts with a simple, powerful interface
     version: 4.1.1
     arch:
     - aarch64
@@ -496,6 +533,7 @@ scan:
   - path: node-red
     slug: nodered
     name: Node-RED
+    description: Flow-based programming for the Internet of Things
     version: 22.2.2
     arch:
     - aarch64
@@ -518,6 +556,7 @@ scan:
   - path: nut
     slug: nut
     name: Network UPS Tools
+    description: Manage battery backup (UPS) devices
     version: 0.18.2
     arch:
     - aarch64
@@ -536,6 +575,7 @@ scan:
   - path: nzbget
     slug: nzbget
     name: NZBGet
+    description: Efficient Usenet downloader, written in C++
     version: 0.1.0
     arch:
     - aarch64
@@ -552,6 +592,7 @@ scan:
   - path: overseerr
     slug: overseerr
     name: Seerr
+    description: Media request and discovery manager for Jellyfin, Plex, and Emby
     version: 0.3.0
     arch:
     - aarch64
@@ -568,6 +609,7 @@ scan:
   - path: phpmyadmin
     slug: phpmyadmin
     name: phpMyAdmin
+    description: A web interface for the official MariaDB app
     version: 0.14.1
     arch:
     - aarch64
@@ -582,6 +624,7 @@ scan:
   - path: plex
     slug: plex
     name: Plex Media Server
+    description: Recorded media, live TV, online news, and podcasts ready to stream.
     version: 4.1.3
     arch:
     - aarch64
@@ -599,6 +642,8 @@ scan:
   - path: prowlarr
     slug: prowlarr
     name: Prowlarr
+    description: Indexer manager/proxy built on the popular arr stack to integrate
+      with your various PVR apps
     version: 0.29.0
     arch:
     - aarch64
@@ -615,6 +660,7 @@ scan:
   - path: qbittorrent
     slug: qbittorrent
     name: qBittorrent
+    description: Fast, stable and lightweight BitTorrent client
     version: 0.1.1
     arch:
     - aarch64
@@ -631,6 +677,7 @@ scan:
   - path: radarr
     slug: radarr
     name: Radarr
+    description: Movie organizer/manager for usenet and torrent users
     version: 0.32.0
     arch:
     - aarch64
@@ -647,6 +694,7 @@ scan:
   - path: sabnzbd
     slug: sabnzbd
     name: SABnzbd
+    description: Free and easy binary newsreader
     version: 0.8.3
     arch:
     - aarch64
@@ -663,6 +711,7 @@ scan:
   - path: sonarr
     slug: sonarr
     name: Sonarr
+    description: Smart PVR for newsgroup and bittorrent users
     version: 0.5.2
     arch:
     - aarch64
@@ -679,6 +728,7 @@ scan:
   - path: spotify
     slug: spotify
     name: Spotify Connect
+    description: Play Spotify music on your Home Assistant device
     version: 0.19.0
     arch:
     - aarch64
@@ -693,6 +743,7 @@ scan:
   - path: spotweb
     slug: spotweb
     name: Spotweb
+    description: A decentralized usenet community based on the Spotnet protocol
     version: 0.2.0
     arch:
     - aarch64
@@ -706,6 +757,7 @@ scan:
   - path: sqlite-web
     slug: sqlite-web
     name: SQLite Web
+    description: Explore your SQLite database
     version: 6.1.1
     arch:
     - aarch64
@@ -721,6 +773,7 @@ scan:
   - path: ssh
     slug: ssh
     name: Advanced SSH & Web Terminal
+    description: A supercharged SSH & Web Terminal access to your Home Assistant instance
     version: 24.2.1
     arch:
     - aarch64
@@ -753,6 +806,7 @@ scan:
   - path: stirling-pdf
     slug: stirling-pdf
     name: Stirling PDF
+    description: Do everything you need to a PDF, on your own machine
     version: 0.1.0
     arch:
     - aarch64
@@ -767,6 +821,7 @@ scan:
   - path: syncthing
     slug: syncthing
     name: Syncthing
+    description: Continuous file synchronization between all your devices
     version: 0.1.0
     arch:
     - aarch64
@@ -788,6 +843,7 @@ scan:
   - path: tailscale
     slug: tailscale
     name: Tailscale
+    description: Zero config VPN for building secure networks
     version: 0.30.7
     arch:
     - aarch64
@@ -814,6 +870,7 @@ scan:
   - path: tasmoadmin
     slug: sonweb
     name: TasmoAdmin
+    description: Centrally manage all your Sonoff-Tasmota devices
     version: 0.34.1
     arch:
     - aarch64
@@ -827,6 +884,7 @@ scan:
   - path: tautulli
     slug: tautulli
     name: Tautulli
+    description: Monitoring and tracking tool for Plex Media Server
     version: 6.1.2
     arch:
     - aarch64
@@ -843,6 +901,7 @@ scan:
   - path: thelounge
     slug: thelounge
     name: The Lounge
+    description: A self-hosted web IRC client
     version: 0.23.2
     arch:
     - aarch64
@@ -856,6 +915,7 @@ scan:
   - path: tor
     slug: tor
     name: Tor
+    description: Protect your privacy and access Home Assistant via Tor
     version: 8.2.0
     arch:
     - aarch64
@@ -871,6 +931,7 @@ scan:
   - path: traccar
     slug: traccar
     name: Traccar
+    description: Modern GPS Tracking Platform
     version: 0.28.0
     arch:
     - aarch64
@@ -887,6 +948,7 @@ scan:
   - path: unifi
     slug: unifi
     name: UniFi Network Application
+    description: Manage your UniFi network using a web browser
     version: 5.3.2
     arch:
     - aarch64
@@ -905,6 +967,7 @@ scan:
   - path: uptime-kuma
     slug: uptime-kuma
     name: Uptime Kuma
+    description: It is a self-hosted monitoring tool like "Uptime Robot"
     version: 0.19.7
     arch:
     - aarch64
@@ -918,6 +981,7 @@ scan:
   - path: victoriametrics
     slug: victoriametrics
     name: VictoriaMetrics
+    description: Fast and resource efficient time series database for your metrics
     version: 0.5.0
     arch:
     - aarch64
@@ -932,6 +996,8 @@ scan:
   - path: vscode
     slug: vscode
     name: Studio Code Server
+    description: Fully featured Visual Studio Code (VSCode) experience integrated
+      in the Home Assistant frontend
     version: 7.2.0
     arch:
     - aarch64
@@ -956,6 +1022,8 @@ scan:
   - path: whisparr
     slug: whisparr
     name: Whisparr
+    description: Whisparr is an adult video collection manager for Usenet and BitTorrent
+      users
     version: 0.6.0
     arch:
     - aarch64
@@ -972,6 +1040,7 @@ scan:
   - path: wireguard
     slug: wireguard
     name: WireGuard
+    description: Fast, modern, secure VPN tunnel
     version: 0.14.0
     arch:
     - aarch64
@@ -989,6 +1058,8 @@ scan:
   - path: zerotier
     slug: zerotier
     name: ZeroTier One
+    description: Radically simplify your network with a virtual networking layer that
+      works the same everywhere
     version: 0.26.3
     arch:
     - aarch64
@@ -1006,6 +1077,7 @@ scan:
   - path: zwave-js-ui
     slug: zwavejs2mqtt
     name: Z-Wave JS UI
+    description: Fully configurable Z-Wave JS gateway and control panel
     version: 7.8.2
     arch:
     - aarch64

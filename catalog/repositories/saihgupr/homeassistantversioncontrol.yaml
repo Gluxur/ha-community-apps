@@ -7,7 +7,7 @@ reviewed:
   commit: a892b9919d8211981feb14fa797863f04e133398
 scan:
   commit: a892b9919d8211981feb14fa797863f04e133398
-  at: '2026-11-15T17:27:44Z'
+  at: '2026-11-15T18:31:40Z'
   apps:
   - path: homeassistant-version-control
     slug: home-assistant-version-control

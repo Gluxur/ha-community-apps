@@ -7,7 +7,7 @@ reviewed:
   commit: 4d382f05742f25544399bb12a08249f29063986e
 scan:
   commit: 4d382f05742f25544399bb12a08249f29063986e
-  at: '2026-11-15T17:21:03Z'
+  at: '2026-11-15T18:25:07Z'
   apps:
   - path: hassio-google-drive-backup
     slug: hassio_google_drive_backup

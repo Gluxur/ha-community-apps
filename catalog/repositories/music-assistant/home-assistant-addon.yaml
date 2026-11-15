@@ -7,11 +7,13 @@ reviewed:
   commit: 96cb972985a9620ce39f10dff118e293f7ab6c39
 scan:
   commit: 96cb972985a9620ce39f10dff118e293f7ab6c39
-  at: '2026-11-15T17:16:54Z'
+  at: '2026-11-15T18:21:02Z'
   apps:
   - path: local_audio
     slug: local_audio
     name: Local Audio
+    description: Turns this Home Assistant system into a synchronized Sendspin player
+      for Music Assistant, playing to speakers or a USB DAC attached to it.
     version: 0.2.0
     arch:
     - amd64
@@ -26,6 +28,8 @@ scan:
   - path: music_assistant
     slug: music_assistant
     name: Music Assistant
+    description: The Music Assistant server is a free, opensource Media library manager
+      that connects to your streaming services and a wide range of connected speakers.
     version: 2.10.12
     arch:
     - amd64
@@ -46,6 +50,7 @@ scan:
   - path: music_assistant_beta
     slug: music_assistant_beta
     name: Music Assistant (BETA)
+    description: BETA version of the Music Assistant Server.
     version: 2.11.0b9
     arch:
     - amd64
@@ -65,6 +70,7 @@ scan:
   - path: music_assistant_dev
     slug: music_assistant_dev
     name: Music Assistant DEV SERVER
+    description: Development App for Music Assistant. For developers only.
     version: 2.11.0.dev2026111503
     arch:
     - amd64
@@ -84,6 +90,10 @@ scan:
   - path: music_assistant_nightly
     slug: music_assistant_nightly
     name: Music Assistant (NIGHTLY)
+    description: NIGHTLY version of Music Assistant. Install this version if you want
+      to keep up with the latest bleeding edge development of Music Assistant! Use
+      it at your own risk, it might not be recommended for daily/production use because
+      it can be unstable.
     version: 2.11.0.dev2026111503
     arch:
     - amd64
@@ -103,6 +113,7 @@ scan:
   - path: netease_cloud_music_api
     slug: netease_cloud_music_api
     name: NetEase Cloud Music API
+    description: NetEase Cloud Music API service for Music Assistant.
     version: 0.1.1
     arch:
     - aarch64
@@ -118,6 +129,8 @@ scan:
   - path: ytm_po_token_generator
     slug: ytm_po_token_generator
     name: YT Music PO Token Generator
+    description: An HA App wrapper for the BgUtils POT Provider that can generate
+      PO tokens for Youtube Music.
     version: 2.0.2
     arch:
     - amd64

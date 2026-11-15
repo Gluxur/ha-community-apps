@@ -7,7 +7,7 @@ reviewed:
   commit: ad9a982703a59703ed5f8085ef7cf69e57275345
 scan:
   commit: ad9a982703a59703ed5f8085ef7cf69e57275345
-  at: '2026-11-15T17:17:48Z'
+  at: '2026-11-15T18:21:55Z'
   apps:
   - path: rtl_433
     slug: rtl433

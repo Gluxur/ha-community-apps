@@ -7,11 +7,12 @@ reviewed:
   commit: b8349d682225db38e43263cd28fbdc39301ffd2e
 scan:
   commit: b8349d682225db38e43263cd28fbdc39301ffd2e
-  at: '2026-11-15T16:34:57Z'
+  at: '2026-11-15T17:38:29Z'
   apps:
   - path: frigate
     slug: frigate
     name: Frigate
+    description: NVR with realtime local object detection for IP cameras
     version: 0.18.2
     arch:
     - amd64
@@ -37,6 +38,7 @@ scan:
   - path: frigate_beta
     slug: frigate-beta
     name: Frigate Beta
+    description: NVR with realtime local object detection for IP cameras
     version: 0.18.2
     arch:
     - amd64
@@ -62,6 +64,7 @@ scan:
   - path: frigate_fa
     slug: frigate-fa
     name: Frigate (Full Access)
+    description: NVR with realtime local object detection for IP cameras
     version: 0.18.2
     arch:
     - amd64
@@ -87,6 +90,7 @@ scan:
   - path: frigate_fa_beta
     slug: frigate-fa-beta
     name: Frigate (Full Access) Beta
+    description: NVR with realtime local object detection for IP cameras
     version: 0.18.2
     arch:
     - amd64
@@ -111,6 +115,7 @@ scan:
   - path: frigate_oldcpu
     slug: frigate-oldcpu
     name: Frigate (For old x86_64 CPU without AVX)
+    description: NVR with realtime local object detection for IP cameras
     version: 0.14.1
     arch:
     - amd64
@@ -134,6 +139,7 @@ scan:
   - path: frigate_proxy
     slug: frigate-proxy
     name: Frigate Proxy
+    description: Proxy addon for Frigate
     version: '1.6'
     arch:
     - aarch64

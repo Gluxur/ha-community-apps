@@ -7,11 +7,12 @@ reviewed:
   commit: bf893749b748f142199c9bce14fac44f8a661d6e
 scan:
   commit: bf893749b748f142199c9bce14fac44f8a661d6e
-  at: '2026-11-15T16:59:00Z'
+  at: '2026-11-15T18:03:22Z'
   apps:
   - path: home_assistant
     slug: docker_wyze_bridge
     name: Docker Wyze Bridge
+    description: WebRTC/RTSP/RTMP/LL-HLS bridge for Wyze cams in a docker container
     version: 2.10.3
     arch:
     - armv7
