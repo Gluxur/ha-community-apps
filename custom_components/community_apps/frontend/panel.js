@@ -8,6 +8,8 @@ const PERMISSIONS = {
   host_pid: "Sees every process running on the host.",
   "hassio_role:manager": "Manages the Supervisor: can install, stop and configure other apps.",
   "hassio_role:admin": "Full Supervisor administration, including host and backups.",
+  homeassistant_api: "Uses the Home Assistant API: can read and control your entities and devices.",
+  hassio_api: "Uses the Supervisor API (information about the system and apps).",
   host_network: "Uses the host network: reaches every device on your network directly.",
   host_dbus: "Talks to the host system bus (D-Bus).",
   apparmor_disabled: "Runs without its AppArmor profile.",

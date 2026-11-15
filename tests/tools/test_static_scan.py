@@ -81,3 +81,9 @@ def test_scan_app_at_root_and_ignores_github_dir():
     scan = scan_repository(FIX / "repo_root")
     assert scan["errors"] == []
     assert [(a["slug"], a["path"]) for a in scan["apps"]] == [("root_app", ".")]
+
+
+def test_api_access_is_medium():
+    assert permissions({"homeassistant_api": True, "hassio_api": True}) == ["hassio_api", "homeassistant_api"]
+    assert risk(["homeassistant_api"], "source") == "medium"
+    assert risk(["hassio_api"], "source") == "medium"

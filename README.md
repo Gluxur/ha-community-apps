@@ -60,7 +60,7 @@ Community Apps never installs, updates or uninstalls an app and never removes a 
 | Risk | When |
 |---|---|
 | **high** | `full_access`, `privileged`, `docker_api`, `host_pid`, `hassio_role: manager` or `admin` |
-| **medium** | `host_network`, `host_dbus`, AppArmor disabled, hardware access (`devices`, `uart`, `usb`, `gpio`, `kernel_modules`), write access to a mapped folder (`/config`, `/share`, `/ssl`…), or a prebuilt image (its source is not checked) |
+| **medium** | `homeassistant_api` (controls your entities), `hassio_api`, `host_network`, `host_dbus`, AppArmor disabled, hardware access (`devices`, `uart`, `usb`, `gpio`, `kernel_modules`), write access to a mapped folder (`/config`, `/share`, `/ssl`…), or a prebuilt image (its source is not checked) |
 | **low** | none of the above |
 
 ## Publish your app repository

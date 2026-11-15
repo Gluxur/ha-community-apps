@@ -15,9 +15,11 @@ MAX_DEPTH = 3
 MAX_FILE_SIZE = 1_000_000
 
 HIGH = {"full_access", "privileged", "docker_api", "host_pid", "hassio_role:manager", "hassio_role:admin"}
-MEDIUM = {"host_network", "host_dbus", "apparmor_disabled", "devices", "uart", "usb", "gpio", "kernel_modules"}
+MEDIUM = {"homeassistant_api", "hassio_api", "host_network", "host_dbus", "apparmor_disabled", "devices", "uart", "usb", "gpio", "kernel_modules"}
 
 _BOOL_PERMISSIONS = (
+    "homeassistant_api",
+    "hassio_api",
     "host_network",
     "full_access",
     "docker_api",
