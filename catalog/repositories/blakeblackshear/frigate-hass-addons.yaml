@@ -1,2 +1,152 @@
 repository: blakeblackshear/frigate-hass-addons
 added_by: catalog
+status: approved
+reviewed:
+  by: Gluxur
+  at: '2026-11-15'
+  commit: b8349d682225db38e43263cd28fbdc39301ffd2e
+scan:
+  commit: b8349d682225db38e43263cd28fbdc39301ffd2e
+  at: '2026-11-15T16:34:57Z'
+  apps:
+  - path: frigate
+    slug: frigate
+    name: Frigate
+    version: 0.18.2
+    arch:
+    - amd64
+    - aarch64
+    image: prebuilt
+    permissions:
+    - devices
+    - hassio_api
+    - homeassistant_api
+    - map_rw:addon_config
+    - map_rw:config
+    - map_rw:media
+    - privileged
+    - usb
+    risk: high
+    domains:
+    - download.docker.com
+    - go.microsoft.com
+    - version.home-assistant.io
+    - www.google-analytics.com
+    error: null
+    dynamic: failed
+  - path: frigate_beta
+    slug: frigate-beta
+    name: Frigate Beta
+    version: 0.18.2
+    arch:
+    - amd64
+    - aarch64
+    image: prebuilt
+    permissions:
+    - devices
+    - hassio_api
+    - homeassistant_api
+    - map_rw:addon_config
+    - map_rw:config
+    - map_rw:media
+    - privileged
+    - usb
+    risk: high
+    domains:
+    - download.docker.com
+    - go.microsoft.com
+    - version.home-assistant.io
+    - www.google-analytics.com
+    error: null
+    dynamic: failed
+  - path: frigate_fa
+    slug: frigate-fa
+    name: Frigate (Full Access)
+    version: 0.18.2
+    arch:
+    - amd64
+    - aarch64
+    image: prebuilt
+    permissions:
+    - full_access
+    - hassio_api
+    - homeassistant_api
+    - map_rw:addon_config
+    - map_rw:config
+    - map_rw:media
+    - privileged
+    risk: high
+    domains:
+    - aka.ms
+    - docs.docker.com
+    - download.docker.com
+    - go.microsoft.com
+    - www.google-analytics.com
+    error: null
+    dynamic: failed
+  - path: frigate_fa_beta
+    slug: frigate-fa-beta
+    name: Frigate (Full Access) Beta
+    version: 0.18.2
+    arch:
+    - amd64
+    - aarch64
+    image: prebuilt
+    permissions:
+    - full_access
+    - hassio_api
+    - homeassistant_api
+    - map_rw:addon_config
+    - map_rw:config
+    - map_rw:media
+    - privileged
+    risk: high
+    domains:
+    - download.docker.com
+    - go.microsoft.com
+    - version.home-assistant.io
+    - www.google-analytics.com
+    error: null
+    dynamic: failed
+  - path: frigate_oldcpu
+    slug: frigate-oldcpu
+    name: Frigate (For old x86_64 CPU without AVX)
+    version: 0.14.1
+    arch:
+    - amd64
+    image: source
+    permissions:
+    - devices
+    - hassio_api
+    - homeassistant_api
+    - map_rw:config
+    - map_rw:media
+    - privileged
+    - usb
+    risk: high
+    domains:
+    - download.docker.com
+    - go.microsoft.com
+    - storage.googleapis.com
+    - version.home-assistant.io
+    error: null
+    dynamic: failed
+  - path: frigate_proxy
+    slug: frigate-proxy
+    name: Frigate Proxy
+    version: '1.6'
+    arch:
+    - aarch64
+    - amd64
+    - armhf
+    - armv7
+    - i386
+    image: source
+    permissions: []
+    risk: low
+    domains:
+    - download.docker.com
+    - go.microsoft.com
+    - version.home-assistant.io
+    error: null
+    dynamic: failed
