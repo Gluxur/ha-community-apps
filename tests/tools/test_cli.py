@@ -161,3 +161,23 @@ def test_fetch_stats_skips_failures(monkeypatch):
 
     monkeypatch.setattr(cli.urllib.request, "urlopen", fake_urlopen)
     assert cli.fetch_stats(["good/repo", "bad/repo"]) == {"good/repo": {"stars": 5, "updated_at": "2026-11-02T00:00:00Z"}}
+
+
+def test_nightly_force_rescans_unchanged_head(tmp_path, monkeypatch):
+    from tools.catalog import __main__ as cli
+
+    monkeypatch.chdir(tmp_path)
+    entry = tmp_path / "catalog/repositories/a/b.yaml"
+    entry.parent.mkdir(parents=True)
+    app = {"slug": "x", "permissions": [], "risk": "low", "domains": []}
+    cli.write_entry(entry, {"repository": "a/b", "status": "approved", "reviewed": {"by": "G", "at": "d", "commit": "same"},
+                            "scan": {"commit": "same", "at": "x", "apps": [app]}})
+    monkeypatch.setattr(cli, "remote_head", lambda name: "same")
+    monkeypatch.setattr(cli, "is_archived", lambda name: False)
+    monkeypatch.setattr(cli, "scan", lambda *a, **k: {"repository": "a/b", "commit": "same", "at": "y", "errors": [],
+                                                      "apps": [{**app, "description": "Hello"}]})
+    assert main(["nightly", "--flagged-out", "f.json"]) == 0
+    assert "description" not in yaml.safe_load(entry.read_text(encoding="utf-8"))["scan"]["apps"][0]
+    assert main(["nightly", "--force", "--flagged-out", "f.json"]) == 0
+    data = yaml.safe_load(entry.read_text(encoding="utf-8"))
+    assert data["status"] == "approved" and data["scan"]["apps"][0]["description"] == "Hello"

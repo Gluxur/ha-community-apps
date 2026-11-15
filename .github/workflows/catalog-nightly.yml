@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "0 3 * * *"
   workflow_dispatch:
+    inputs:
+      force:
+        description: Rescan every approved repository, even unchanged ones
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -29,7 +34,8 @@ jobs:
       - name: Rescan
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: python -m tools.catalog nightly --dynamic --flagged-out /tmp/flagged.json
+          FORCE: ${{ inputs.force && '--force' || '' }}
+        run: python -m tools.catalog nightly --dynamic $FORCE --flagged-out /tmp/flagged.json
       - name: Commit
         run: |
           if [ -n "$(git status --porcelain catalog)" ]; then
