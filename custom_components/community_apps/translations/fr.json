@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Community Apps",
-        "description": "Ajoute une page **Community Apps** dans la barre latérale (administrateurs uniquement) pour parcourir un catalogue communautaire d'apps tierces et ajouter leurs dépôts au store d'apps.\n\nChaque dépôt a été relu par une personne à son entrée dans le catalogue, puis il est rescanné automatiquement quand il change. La relecture liste des signaux (permissions, domaines contactés) ; elle ne prouve pas qu'une app est inoffensive."
+        "description": "Ajoute une page **Community Apps** dans la barre latérale (administrateurs uniquement) pour parcourir un catalogue communautaire d'apps tierces et ajouter leurs dépôts au store d'apps.\n\nLes dépôts sont listés après lecture d'un rapport de scan automatique par un mainteneur, puis rescannés automatiquement quand ils changent. Le rapport liste des signaux (permissions, domaines contactés) ; il ne prouve pas qu'une app est inoffensive.\n\n**Aucune garantie. Les apps sont des logiciels tiers ; vous les installez à vos risques. Être listé n'est pas une recommandation.**"
       }
     },
     "abort": {

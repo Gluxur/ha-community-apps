@@ -4,9 +4,12 @@
 [![Validate](https://github.com/Gluxur/ha-community-apps/actions/workflows/validate.yml/badge.svg)](https://github.com/Gluxur/ha-community-apps/actions/workflows/validate.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A **community catalog of third-party Home Assistant apps** (formerly add-ons), reviewed by a
-person when they enter the catalog, plus a sidebar page in Home Assistant to browse it and add
-a repository to the app store in one click.
+A **community catalog of third-party Home Assistant apps** (formerly add-ons), listed after a
+maintainer read an automated scan report, plus a sidebar page in Home Assistant to browse it
+and add a repository to the app store in one click.
+
+> **No warranty. Apps are third-party software; you install them at your own risk. Being listed is not an endorsement.**
+> The catalog and this integration are provided "as is" under the [MIT license](LICENSE).
 
 The Home Assistant Marketplace covers integrations, cards, themes and template macros, but not
 apps: to install a third-party app you need to know its repository URL. Community Apps fills
@@ -32,7 +35,7 @@ Home Assistant Container and Core have no app store.
 - Only apps that run on your system are shown by default.
 - Open an app to read its description and README (loaded from GitHub, written by the app's author) and see **what it can do** (each sensitive permission explained), the **domains
   it contacts**, whether the image is prebuilt or built on your system, and when it was
-  reviewed.
+  listed.
 - **Add repository to the app store** adds the repository to the Supervisor, exactly as if you
   pasted its URL yourself. Nothing is installed: you then open the app in the native app store
   and install it there. Repositories with high-risk apps ask for confirmation first.
@@ -41,13 +44,14 @@ Home Assistant Container and Core have no app store.
 
 Community Apps never installs, updates or uninstalls an app and never removes a repository.
 
-## What the review is, and what it is not
+## What listing means, and what it does not
 
-- A person reads each repository **when it enters the catalog**, helped by an automatic report.
-- **Updates are not reviewed before they reach you.** The Supervisor installs and updates apps
+- A maintainer reads the automated scan report **when a repository enters the catalog**. This is a
+  quick check of signals, not a security audit, and no code is certified.
+- **Updates are not checked before they reach you.** The Supervisor installs and updates apps
   from the author's repository. Every night, repositories that changed are rescanned; if the
   signals changed (new permission, higher risk, new domain), the entry goes back in review
-  (`flagged`), a reviewer is notified, and people who installed the app get a repair. By then
+  (`flagged`), a maintainer is notified, and people who installed the app get a repair. By then
   the update may already be installed.
 - The report lists **signals, not proof**. An app can behave differently later, after
   configuration, or only on some systems.
@@ -77,7 +81,7 @@ You must be the owner or a maintainer of the repository.
 
 2. Open a pull request that changes only that file. A workflow scans your repository and
    posts a report.
-3. A reviewer reads the report and your repository, then merges or asks questions.
+3. A maintainer reads the report, then merges or asks questions.
 
 After merge, the entry is recorded as reviewed and appears in the catalog within minutes.
 

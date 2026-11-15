@@ -45,14 +45,29 @@ const time = (value) => {
   return Number.isNaN(t) ? -Infinity : t;
 };
 
-// Raw GitHub URLs of an app's README, then DOCS.md (what the app store shows).
-export function readmeUrls(repo, app) {
+// Raw GitHub base URL of an app folder at `ref`, or null when the path is unusable.
+function rawBase(repo, app, ref) {
   const path = app?.path;
-  if (typeof path !== "string" || path.split("/").includes("..")) return [];
+  if (typeof path !== "string" || path.split("/").includes("..") || !ref) return null;
   const dir = path === "." || path === "" ? "" : `${path.split("/").map(encodeURIComponent).join("/")}/`;
-  const base = `https://raw.githubusercontent.com/${repo.repository}/HEAD/${dir}`;
-  return [`${base}README.md`, `${base}DOCS.md`];
+  return `https://raw.githubusercontent.com/${repo.repository}/${encodeURIComponent(ref)}/${dir}`;
 }
+
+// README.md, then DOCS.md (what the app store shows), from the current repository.
+export function readmeUrls(repo, app) {
+  const base = rawBase(repo, app, "HEAD");
+  return base ? [`${base}README.md`, `${base}DOCS.md`] : [];
+}
+
+// Icon from the reviewed commit, so it cannot change after the review.
+export function iconUrl(repo, app) {
+  const base = rawBase(repo, app, repo.scan?.commit);
+  return base ? `${base}icon.png` : null;
+}
+
+export const riskOf = (app) => (app?.risk in RISK_ORDER ? app.risk : "low");
+
+export const defaultFilters = () => ({ status: [], risk: [], source: [], compatible: true });
 
 // Row status, in the order the Marketplace groups them (most urgent first).
 const STATUS_ORDER = ["flagged", "installed", "added", "new", "available"];
@@ -77,12 +92,15 @@ export function rowStatus(repo, app, now = Date.now()) {
 
 // filters: {status: [], risk: [], source: [], compatible: bool}. OR inside a
 // section, AND across sections, an empty section does not filter.
+const statusOf = (row, now) => row.status || rowStatus(row.repo, row.app, now);
+
 export function filterRows(rows, filters, query, now = Date.now()) {
   const q = String(query || "").trim().toLowerCase();
   const pick = (list, value) => !list?.length || list.includes(value);
-  return rows.filter(({ repo, app }) => {
-    if (!pick(filters.status, rowStatus(repo, app, now))) return false;
-    if (!pick(filters.risk, app.risk)) return false;
+  return rows.filter((row) => {
+    const { repo, app } = row;
+    if (!pick(filters.status, statusOf(row, now))) return false;
+    if (!pick(filters.risk, riskOf(app))) return false;
     if (!pick(filters.source, repo.added_by || "author")) return false;
     if (filters.compatible && !app.compatible) return false;
     if (!q) return true;
@@ -94,8 +112,8 @@ export function filterRows(rows, filters, query, now = Date.now()) {
 export function groupRows(rows, mode, now = Date.now()) {
   if (mode === "none") return [{ key: "all", label: "", rows }];
   const keyOf = {
-    status: (r) => rowStatus(r.repo, r.app, now),
-    risk: (r) => r.app.risk || "low",
+    status: (r) => statusOf(r, now),
+    risk: (r) => riskOf(r.app),
     repository: (r) => r.repo.repository,
   }[mode];
   const groups = new Map();
@@ -118,8 +136,8 @@ export function sortRows(rows, mode, now = Date.now()) {
   const compare = {
     stars: (a, b) => (b.repo.stars ?? -1) - (a.repo.stars ?? -1),
     updated: (a, b) => time(b.repo.updated_at) - time(a.repo.updated_at),
-    risk: (a, b) => (RISK_ORDER[a.app.risk] ?? 3) - (RISK_ORDER[b.app.risk] ?? 3),
-    status: (a, b) => STATUS_ORDER.indexOf(rowStatus(a.repo, a.app, now)) - STATUS_ORDER.indexOf(rowStatus(b.repo, b.app, now)),
+    risk: (a, b) => RISK_ORDER[riskOf(a.app)] - RISK_ORDER[riskOf(b.app)],
+    status: (a, b) => STATUS_ORDER.indexOf(statusOf(a, now)) - STATUS_ORDER.indexOf(statusOf(b, now)),
     repository: (a, b) => a.repo.repository.localeCompare(b.repo.repository, undefined, { sensitivity: "base" }),
     name: () => 0,
   }[mode] || (() => 0);
@@ -158,10 +176,15 @@ const FILTER_SECTIONS = {
   source: { label: "Source", options: { author: "Added by the author", catalog: "Added by the catalog" } },
 };
 
+const REL_FMT = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
+const NUM_FMT = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 2 });
+// Icon URLs that failed once (404): never requested again during this session.
+const brokenIcons = new Set();
+
 const relTime = (value) => {
   const t = Date.parse(value || "");
   if (Number.isNaN(t)) return "–";
-  const fmt = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
+  const fmt = REL_FMT;
   const steps = [[60, "second"], [60, "minute"], [24, "hour"], [7, "day"], [4.345, "week"], [12, "month"], [Infinity, "year"]];
   let v = (t - Date.now()) / 1000;
   for (const [n, unit] of steps) {
@@ -170,7 +193,7 @@ const relTime = (value) => {
   }
   return "–";
 };
-const compact = (n) => (typeof n === "number" ? new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 2 }).format(n) : "–");
+const compact = (n) => (typeof n === "number" ? NUM_FMT.format(n) : "–");
 
 const store = {
   get(key, fallback) {
@@ -199,7 +222,7 @@ class CommunityAppsPanel extends HTMLElement {
     this._loading = false;
     this._tab = "discover";
     this._query = "";
-    this._filters = { status: [], risk: [], source: [], compatible: true, ...store.get("filters", {}) };
+    this._filters = { ...defaultFilters(), ...store.get("filters", {}) };
     this._sort = store.get("sort2", "stars");
     if (!(this._sort in SORTS)) this._sort = "stars";
     this._group = store.get("group", "status");
@@ -214,6 +237,22 @@ class CommunityAppsPanel extends HTMLElement {
     this._busy = null;
     this._added = {}; // repository -> {apps:[store slugs]} | {error}
     this._readmes = {}; // "repo|slug" -> {state: loading|ok|none, text, url}
+    // Registered once: a broken icon is remembered and removed (error does not bubble).
+    this.shadowRoot.addEventListener("error", (e) => {
+      const img = e.target;
+      if (img?.tagName === "IMG" && img.dataset.icon) {
+        brokenIcons.add(img.dataset.icon);
+        img.remove();
+      }
+    }, true);
+    // Registered once: a click outside an open menu closes it.
+    this.shadowRoot.addEventListener("click", (e) => {
+      if (!this._menuOpen) return;
+      const path = e.composedPath();
+      if (path.some((n) => n.classList?.contains("menu") || n.dataset?.menu)) return;
+      this._menuOpen = null;
+      this._render();
+    });
   }
 
   set hass(hass) {
@@ -277,10 +316,15 @@ class CommunityAppsPanel extends HTMLElement {
     for (const repo of this._data?.repositories || []) {
       if (repo.status === "removed") continue;
       for (const app of repo.scan?.apps || []) {
-        if (!app.error) rows.push({ repo, app });
+        if (!app.error) rows.push({ repo, app, status: rowStatus(repo, app) });
       }
     }
     return rows;
+  }
+
+  _baseRows() {
+    const all = this._allRows();
+    return this._tab === "installed" ? all.filter((r) => r.app.installed) : all;
   }
 
   _stats(repo) {
@@ -291,11 +335,11 @@ class CommunityAppsPanel extends HTMLElement {
   }
 
   _riskChip(risk) {
-    return `<span class="chip risk-${esc(risk)}">${esc(risk)} risk</span>`;
+    const r = risk in RISK_ORDER ? risk : "low";
+    return `<span class="chip risk-${r}">${r} risk</span>`;
   }
 
-  _statusChip(repo, app) {
-    const status = rowStatus(repo, app);
+  _statusChip(repo, app, status = rowStatus(repo, app)) {
     const cls = { flagged: "flagged", installed: "info", added: "info", new: "new", available: "muted" }[status];
     return `<span class="chip ${cls}">${esc(STATUS_LABELS[status])}</span>`;
   }
@@ -308,10 +352,11 @@ class CommunityAppsPanel extends HTMLElement {
   }
 
   _icon(repo, app) {
-    const url = readmeUrls(repo, app)[0]?.replace(/README\.md$/, "icon.png");
+    const url = iconUrl(repo, app);
     const fallback = `<span class="glyph">${esc((app.name || "?").slice(0, 1).toUpperCase())}</span>`;
-    if (!url) return `<span class="icon">${fallback}</span>`;
-    return `<span class="icon">${fallback}<img src="${esc(url)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>`;
+    if (!url || brokenIcons.has(url)) return `<span class="icon">${fallback}</span>`;
+    // loading=lazy: only icons of visible rows are requested.
+    return `<span class="icon">${fallback}<img src="${esc(url)}" data-icon="${esc(url)}" alt="" loading="lazy" referrerpolicy="no-referrer"></span>`;
   }
 
   // ---- tabs -------------------------------------------------------------
@@ -344,7 +389,8 @@ class CommunityAppsPanel extends HTMLElement {
     return `
       <div class="discover">
         <h1 class="hero">Apps made by the community</h1>
-        <p class="hint">Third-party apps whose repositories were reviewed by a person when they entered the catalog. Open one to see what it can do before adding its repository.</p>
+        <p class="hint">Third-party apps, listed after a maintainer read an automated scan report. Open one to see what it can do before adding its repository.</p>
+        <p class="disclaimer">No warranty. Apps are third-party software; you install them at your own risk. Being listed is not an endorsement.</p>
         ${section("Popular", top(sortRows(rows, "stars")), "stars")}
         ${section("Recently updated", top(sortRows(rows, "updated")), "updated")}
         ${section("New in the catalog", top(byReview), "")}
@@ -352,7 +398,7 @@ class CommunityAppsPanel extends HTMLElement {
   }
 
   _discRow({ repo, app }) {
-    const installed = rowStatus(repo, app) === "installed";
+    const installed = Boolean(app.installed);
     return `
       <button class="disc-row" data-repo="${esc(repo.repository)}" data-slug="${esc(app.slug)}">
         ${this._icon(repo, app)}
@@ -401,8 +447,7 @@ class CommunityAppsPanel extends HTMLElement {
   }
 
   _tableView() {
-    const all = this._allRows();
-    const base = this._tab === "installed" ? all.filter((r) => r.app.installed) : all;
+    const base = this._baseRows();
     const filters = this._tab === "installed" ? { compatible: false } : this._filters;
     const rows = sortRows(filterRows(base, filters, this._query), this._sort);
     const groups = groupRows(rows, this._group);
@@ -410,21 +455,24 @@ class CommunityAppsPanel extends HTMLElement {
     const template = [cols.icon ? "44px" : null, "minmax(180px, 3fr)", cols.repository ? "minmax(120px, 1.4fr)" : null,
       cols.stars ? "80px" : null, cols.activity ? "120px" : null, cols.risk ? "110px" : null, cols.status ? "160px" : null]
       .filter(Boolean).join(" ");
+    // Phones keep only the visible icon, name and risk columns.
+    const narrow = [cols.icon ? "44px" : null, "1fr", cols.risk ? "110px" : null].filter(Boolean).join(" ");
+    const gridVars = `--cols:${template};--cols-narrow:${narrow}`;
     const head = `
-      <div class="trow thead" style="grid-template-columns:${template}">
+      <div class="trow thead" style="${gridVars}">
         ${cols.icon ? "<span></span>" : ""}<span>App</span>${cols.repository ? '<span class="c-repo">Repository</span>' : ""}
         ${cols.stars ? '<span class="num">Stars</span>' : ""}${cols.activity ? '<span class="num c-act">Activity</span>' : ""}
         ${cols.risk ? "<span>Risk</span>" : ""}${cols.status ? '<span class="c-status">Status</span>' : ""}
       </div>`;
-    const line = ({ repo, app }) => `
-      <button class="trow" style="grid-template-columns:${template}" data-repo="${esc(repo.repository)}" data-slug="${esc(app.slug)}">
+    const line = ({ repo, app, status }) => `
+      <button class="trow" style="${gridVars}" data-repo="${esc(repo.repository)}" data-slug="${esc(app.slug)}">
         ${cols.icon ? this._icon(repo, app) : ""}
         <span class="cell-name"><span class="name">${esc(app.name)}</span><span class="desc1">${esc(app.description || "")}</span></span>
         ${cols.repository ? `<span class="muted c-repo ellip">${esc(repo.repository)}</span>` : ""}
         ${cols.stars ? `<span class="num">${compact(repo.stars)}</span>` : ""}
         ${cols.activity ? `<span class="num muted c-act">${esc(relTime(repo.updated_at))}</span>` : ""}
         ${cols.risk ? `<span>${this._riskChip(app.risk)}</span>` : ""}
-        ${cols.status ? `<span class="c-status">${this._statusChip(repo, app)}</span>` : ""}
+        ${cols.status ? `<span class="c-status">${this._statusChip(repo, app, status)}</span>` : ""}
       </button>`;
     const body = groups
       .map((g) => {
@@ -459,12 +507,7 @@ class CommunityAppsPanel extends HTMLElement {
   }
 
   _detailView() {
-    const repo = (this._data?.repositories || []).find((r) => r.repository === this._selected.repository);
-    const app = repo?.scan?.apps?.find((a) => a.slug === this._selected.slug);
-    if (!repo || !app) {
-      this._selected = null;
-      return this._tableView();
-    }
+    const { repo, app } = this._selectedRow();
     const perms = app.permissions?.length
       ? `<ul>${app.permissions.map((p) => `<li><code>${esc(p)}</code> ${esc(describePermission(p))}</li>`).join("")}</ul>`
       : "<p>No sensitive permission requested.</p>";
@@ -477,7 +520,7 @@ class CommunityAppsPanel extends HTMLElement {
       skipped: "The app was not started (architecture not tested, or the time budget for this repository was used by riskier apps), so only domains found in its code are listed.",
     }[app.dynamic || "skipped"];
     const reviewed = repo.reviewed
-      ? `Reviewed on entry on ${esc(fmtDate(repo.reviewed.at))} by ${esc(repo.reviewed.by)}. Last scan ${esc(fmtDate(repo.scan?.at))}.`
+      ? `Listed on ${esc(fmtDate(repo.reviewed.at))} by ${esc(repo.reviewed.by)} after reading the scan report. Last scan ${esc(fmtDate(repo.scan?.at))}.`
       : "";
     const entryPath = repo.repository.toLowerCase();
     return `
@@ -491,9 +534,10 @@ class CommunityAppsPanel extends HTMLElement {
         ${app.description ? `<p class="lead">${esc(app.description)}</p>` : ""}
         <h3>What it can do</h3>${perms}
         <h3>Domains contacted</h3>${domains}<p class="hint">${esc(dynamic)} Connections to raw IP addresses are not detected.</p>
-        <h3>Review</h3>
+        <h3>Listing</h3>
         <p>${reviewed}</p>
-        <p class="hint">The review happens when a repository enters the catalog. Updates reach you before the nightly rescan. The signals above do not prove an app is harmless.</p>
+        <p class="hint">The scan report is read when a repository enters the catalog. Updates reach you before the nightly rescan. The signals above do not prove an app is harmless.</p>
+        <p class="disclaimer">No warranty. Apps are third-party software; you install them at your own risk. Being listed is not an endorsement.</p>
         <p class="links">
           <a href="https://github.com/${esc(repo.repository)}" target="_blank" rel="noopener noreferrer">Repository</a>
           <a href="https://github.com/Gluxur/ha-community-apps/blob/main/catalog/repositories/${esc(entryPath)}.yaml" target="_blank" rel="noopener noreferrer">Catalog entry</a>
@@ -597,6 +641,8 @@ class CommunityAppsPanel extends HTMLElement {
     const banner = this._data?.catalog_error
       ? `<div class="banner">The catalog could not be refreshed (${esc(this._data.catalog_error)}); showing data from ${esc(fmtDate(this._data.fetched_at))}. <button class="link" id="retry">Retry</button></div>`
       : "";
+    // A selected app that left the catalog (refresh) falls back to the current tab.
+    if (this._selected && !this._selectedRow()) this._selected = null;
     let body;
     if (this._error) body = `<div class="banner">Could not load the catalog: ${esc(this._error)} <button class="link" id="retry">Retry</button></div>`;
     else if (!this._data) body = '<p class="empty pad">Loading…</p>';
@@ -637,7 +683,7 @@ class CommunityAppsPanel extends HTMLElement {
         .fopt { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 16px; cursor: pointer; }
         #clear-filters { margin: 8px 16px; }
         .table { min-width: 0; }
-        .trow { display: grid; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 6px 12px; text-align: left; background: none; border: none; border-bottom: 1px solid var(--divider-color); color: inherit; font: inherit; cursor: pointer; }
+        .trow { display: grid; grid-template-columns: var(--cols); align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 6px 12px; text-align: left; background: none; border: none; border-bottom: 1px solid var(--divider-color); color: inherit; font: inherit; cursor: pointer; }
         button.trow:hover { background: var(--secondary-background-color, rgba(127,127,127,.08)); }
         .thead { min-height: 44px; font-weight: 500; cursor: default; position: sticky; top: 56px; z-index: 2; background: var(--primary-background-color); }
         .ghead { display: flex; align-items: center; gap: 8px; width: 100%; padding: 12px; background: none; border: none; border-bottom: 1px solid var(--divider-color); color: inherit; font: inherit; font-weight: 500; cursor: pointer; text-align: left; }
@@ -673,6 +719,7 @@ class CommunityAppsPanel extends HTMLElement {
         .new { color: var(--success-color); border-color: var(--success-color); }
         .muted { color: var(--secondary-text-color); }
         .hint { color: var(--secondary-text-color); font-size: 13px; }
+        .disclaimer { font-size: 13px; font-weight: 500; border-left: 3px solid var(--warning-color); padding: 4px 10px; }
         .empty { color: var(--secondary-text-color); }
         .banner, .warn { border-left: 4px solid var(--warning-color); padding: 8px 12px; background: var(--card-background-color); margin: 12px; }
         .detail h2 { margin: 0; font-size: 22px; font-weight: 400; overflow-wrap: anywhere; }
@@ -706,7 +753,7 @@ class CommunityAppsPanel extends HTMLElement {
           .refresh { padding: 4px 10px; }
           .browse.with-pane { grid-template-columns: 1fr; }
           .fpane { border-right: none; border-bottom: 1px solid var(--divider-color); }
-          .trow { grid-template-columns: 44px 1fr 110px !important; }
+          .trow { grid-template-columns: var(--cols-narrow); }
           .trow .c-repo, .trow .num, .trow .c-status { display: none; }
           .thead { top: 56px; }
         }
@@ -718,6 +765,12 @@ class CommunityAppsPanel extends HTMLElement {
       </header>
       ${body}`;
     this._wire();
+  }
+
+  _selectedRow() {
+    const repo = (this._data?.repositories || []).find((r) => r.repository === this._selected?.repository);
+    const app = repo?.scan?.apps?.find((a) => a.slug === this._selected?.slug);
+    return repo && app ? { repo, app } : null;
   }
 
   _open(el) {
@@ -783,7 +836,7 @@ class CommunityAppsPanel extends HTMLElement {
       this._saveFilters();
     });
     on("#clear-filters", "click", () => {
-      this._filters = { status: [], risk: [], source: [], compatible: false };
+      this._filters = defaultFilters();
       this._saveFilters();
     });
     on("[data-menu]", "click", (el, e) => {
@@ -804,8 +857,7 @@ class CommunityAppsPanel extends HTMLElement {
       this._render();
     });
     on("[data-collapse]", "click", (el) => {
-      const all = this._tab === "installed" ? this._allRows().filter((r) => r.app.installed) : this._allRows();
-      this._collapsed = el.dataset.collapse === "all" ? new Set(groupRows(all, this._group).map((g) => g.key)) : new Set();
+      this._collapsed = el.dataset.collapse === "all" ? new Set(groupRows(this._baseRows(), this._group).map((g) => g.key)) : new Set();
       this._menuOpen = null;
       this._render();
     });
@@ -815,14 +867,6 @@ class CommunityAppsPanel extends HTMLElement {
       this._menuOpen = null;
       this._render();
     });
-    if (this._menuOpen) {
-      root.addEventListener("click", (e) => {
-        if (!e.composedPath().some((n) => n.classList?.contains("menu"))) {
-          this._menuOpen = null;
-          this._render();
-        }
-      }, { once: true });
-    }
     on("#customize", "click", () => {
       this._customizing = true;
       this._menuOpen = null;
