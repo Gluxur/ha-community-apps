@@ -1,2 +1,1020 @@
 repository: hassio-addons/repository
 added_by: catalog
+status: approved
+reviewed:
+  by: Gluxur
+  at: '2026-11-15'
+  commit: c7657fd01bc83dc2bcdab219d5c5fe04e77ede71
+scan:
+  commit: c7657fd01bc83dc2bcdab219d5c5fe04e77ede71
+  at: '2026-11-15T16:55:45Z'
+  apps:
+  - path: actual-budget
+    slug: actual-budget
+    name: Actual Budget
+    version: 0.2.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions: []
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: adguard
+    slug: adguard
+    name: AdGuard Home
+    version: 6.3.2
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - hassio_role:manager
+    - host_network
+    - privileged
+    risk: high
+    domains: []
+    error: null
+    dynamic: failed
+  - path: aircast
+    slug: aircast
+    name: AirCast
+    version: 5.2.3
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - host_network
+    - map_rw:addon_config
+    - map_rw:config
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: airsonos
+    slug: airsonos
+    name: AirSonos
+    version: 5.2.3
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - host_network
+    - map_rw:addon_config
+    - map_rw:config
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: appdaemon
+    slug: appdaemon
+    name: AppDaemon
+    version: 0.19.3
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - homeassistant_api
+    - map_rw:addon_config
+    - map_rw:config
+    - map_rw:media
+    - map_rw:share
+    - uart
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: audiobookshelf
+    slug: audiobookshelf
+    name: Audiobookshelf
+    version: 0.2.2
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - map_rw:media
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: bazarr
+    slug: bazarr
+    name: Bazarr
+    version: 0.7.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - map_rw:addon_config
+    - map_rw:media
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: bitwarden
+    slug: bitwarden
+    name: Vaultwarden
+    version: 0.28.3
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions: []
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: bookstack
+    slug: bookstack
+    name: Bookstack
+    version: 5.0.3
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions: []
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: calibre-web
+    slug: calibre-web
+    name: Calibre-Web
+    version: 0.1.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - map_rw:media
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: chrony
+    slug: chrony
+    name: chrony
+    version: 6.1.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - privileged
+    risk: high
+    domains: []
+    error: null
+    dynamic: failed
+  - path: emqx
+    slug: emqx
+    name: EMQX
+    version: 0.10.1
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - host_network
+    - map_rw:addon_config
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: example
+    slug: example
+    name: Example
+    version: 14.0.1
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions: []
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: file-explorer
+    slug: file-explorer
+    name: File Explorer
+    version: 0.1.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - map_rw:all_app_configs
+    - map_rw:backup
+    - map_rw:config
+    - map_rw:local_apps
+    - map_rw:media
+    - map_rw:share
+    - map_rw:ssl
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: foldingathome
+    slug: foldingathome
+    name: Folding@home
+    version: 1.0.0
+    arch:
+    - amd64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: freshrss
+    slug: freshrss
+    name: FreshRSS
+    version: 0.2.2
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions: []
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: ftp
+    slug: ftp
+    name: FTP
+    version: 7.0.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - apparmor_disabled
+    - host_network
+    - map_rw:addons
+    - map_rw:backup
+    - map_rw:config
+    - map_rw:media
+    - map_rw:share
+    - map_rw:ssl
+    - privileged
+    risk: high
+    domains: []
+    error: null
+    dynamic: failed
+  - path: glances
+    slug: glances
+    name: Glances
+    version: 0.23.2
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - apparmor_disabled
+    - docker_api
+    - hassio_api
+    - host_network
+    - host_pid
+    - map_rw:addon_config
+    - map_rw:config
+    risk: high
+    domains: []
+    error: null
+    dynamic: failed
+  - path: grafana
+    slug: grafana
+    name: Grafana
+    version: 13.1.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions: []
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: grocy
+    slug: grocy
+    name: Grocy
+    version: 0.26.5
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions: []
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: homebox
+    slug: homebox
+    name: Homebox
+    version: 0.1.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions: []
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: influxdb
+    slug: influxdb
+    name: InfluxDB v1
+    version: 6.0.1
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: jellyfin
+    slug: jellyfin
+    name: Jellyfin
+    version: 0.4.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - map_rw:addon_config
+    - map_rw:media
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: jupyterlab
+    slug: jupyterlablite
+    name: JupyterLab
+    version: 0.18.3
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - homeassistant_api
+    - map_rw:config
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: lidarr
+    slug: lidarr
+    name: Lidarr
+    version: 0.16.1
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - map_rw:addon_config
+    - map_rw:media
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: mealie
+    slug: mealie
+    name: Mealie
+    version: 0.7.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions: []
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: motioneye
+    slug: motioneye
+    name: motionEye
+    version: 0.24.1
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - apparmor_disabled
+    - host_network
+    - map_rw:media
+    - map_rw:share
+    - privileged
+    risk: high
+    domains: []
+    error: null
+    dynamic: failed
+  - path: mqtt-explorer
+    slug: mqtt-explorer
+    name: MQTT Explorer
+    version: 0.1.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions: []
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: mqtt-io
+    slug: mqtt-io
+    name: MQTT IO
+    version: 0.5.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - full_access
+    - hassio_api
+    - homeassistant_api
+    - map_rw:addon_config
+    - map_rw:config
+    - map_rw:share
+    - privileged
+    risk: high
+    domains: []
+    error: null
+    dynamic: failed
+  - path: n8n
+    slug: n8n
+    name: n8n
+    version: 0.6.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - homeassistant_api
+    - map_rw:addon_config
+    - map_rw:media
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: nginxproxymanager
+    slug: nginxproxymanager
+    name: Nginx Proxy Manager
+    version: 4.1.1
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - map_rw:addon_config
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: node-red
+    slug: nodered
+    name: Node-RED
+    version: 22.2.2
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - hassio_role:manager
+    - homeassistant_api
+    - host_network
+    - map_rw:addon_config
+    - map_rw:config
+    - map_rw:media
+    - map_rw:share
+    - uart
+    risk: high
+    domains: []
+    error: null
+    dynamic: failed
+  - path: nut
+    slug: nut
+    name: Network UPS Tools
+    version: 0.18.2
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - hassio_role:manager
+    - homeassistant_api
+    - uart
+    - usb
+    risk: high
+    domains: []
+    error: null
+    dynamic: failed
+  - path: nzbget
+    slug: nzbget
+    name: NZBGet
+    version: 0.1.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - map_rw:addon_config
+    - map_rw:media
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: overseerr
+    slug: overseerr
+    name: Seerr
+    version: 0.3.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - map_rw:addon_config
+    - map_rw:media
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: phpmyadmin
+    slug: phpmyadmin
+    name: phpMyAdmin
+    version: 0.14.1
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: plex
+    slug: plex
+    name: Plex Media Server
+    version: 4.1.3
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - devices
+    - hassio_api
+    - map_rw:media
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: prowlarr
+    slug: prowlarr
+    name: Prowlarr
+    version: 0.29.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - map_rw:addon_config
+    - map_rw:media
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: qbittorrent
+    slug: qbittorrent
+    name: qBittorrent
+    version: 0.1.1
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - map_rw:addon_config
+    - map_rw:media
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: radarr
+    slug: radarr
+    name: Radarr
+    version: 0.32.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - map_rw:addon_config
+    - map_rw:media
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: sabnzbd
+    slug: sabnzbd
+    name: SABnzbd
+    version: 0.8.3
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - map_rw:addon_config
+    - map_rw:media
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: sonarr
+    slug: sonarr
+    name: Sonarr
+    version: 0.5.2
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - map_rw:addon_config
+    - map_rw:media
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: spotify
+    slug: spotify
+    name: Spotify Connect
+    version: 0.19.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - host_network
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: spotweb
+    slug: spotweb
+    name: Spotweb
+    version: 0.2.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions: []
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: sqlite-web
+    slug: sqlite-web
+    name: SQLite Web
+    version: 6.1.1
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - map_rw:config
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: ssh
+    slug: ssh
+    name: Advanced SSH & Web Terminal
+    version: 24.2.1
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - apparmor_disabled
+    - devices
+    - docker_api
+    - gpio
+    - hassio_api
+    - hassio_role:manager
+    - homeassistant_api
+    - host_dbus
+    - host_network
+    - map_rw:addons
+    - map_rw:all_addon_configs
+    - map_rw:backup
+    - map_rw:config
+    - map_rw:media
+    - map_rw:share
+    - map_rw:ssl
+    - privileged
+    - uart
+    - usb
+    risk: high
+    domains: []
+    error: null
+    dynamic: failed
+  - path: stirling-pdf
+    slug: stirling-pdf
+    name: Stirling PDF
+    version: 0.1.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - map_rw:addon_config
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: syncthing
+    slug: syncthing
+    name: Syncthing
+    version: 0.1.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - host_network
+    - map_rw:addon_config
+    - map_rw:addons
+    - map_rw:all_addon_configs
+    - map_rw:backup
+    - map_rw:config
+    - map_rw:media
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: tailscale
+    slug: tailscale
+    name: Tailscale
+    version: 0.30.7
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - devices
+    - hassio_api
+    - host_dbus
+    - host_network
+    - map_rw:all_app_configs
+    - map_rw:backup
+    - map_rw:config
+    - map_rw:local_apps
+    - map_rw:media
+    - map_rw:share
+    - map_rw:ssl
+    - privileged
+    risk: high
+    domains:
+    - controlplane.tailscale.com
+    error: null
+    dynamic: failed
+  - path: tasmoadmin
+    slug: sonweb
+    name: TasmoAdmin
+    version: 0.34.1
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions: []
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: tautulli
+    slug: tautulli
+    name: Tautulli
+    version: 6.1.2
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - map_rw:backup
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: thelounge
+    slug: thelounge
+    name: The Lounge
+    version: 0.23.2
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions: []
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: tor
+    slug: tor
+    name: Tor
+    version: 8.2.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - map_rw:ssl
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: traccar
+    slug: traccar
+    name: Traccar
+    version: 0.28.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - host_network
+    - map_rw:addon_config
+    - map_rw:config
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: unifi
+    slug: unifi
+    name: UniFi Network Application
+    version: 5.3.2
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - map_rw:backup
+    risk: medium
+    domains:
+    - fw-update.ubnt.com
+    - static.ubnt.com
+    - static.ui.com
+    error: null
+    dynamic: started
+  - path: uptime-kuma
+    slug: uptime-kuma
+    name: Uptime Kuma
+    version: 0.19.7
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions: []
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: victoriametrics
+    slug: victoriametrics
+    name: VictoriaMetrics
+    version: 0.5.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - homeassistant_api
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: vscode
+    slug: vscode
+    name: Studio Code Server
+    version: 7.2.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - hassio_role:manager
+    - homeassistant_api
+    - map_rw:addons
+    - map_rw:all_addon_configs
+    - map_rw:backup
+    - map_rw:config
+    - map_rw:media
+    - map_rw:share
+    - map_rw:ssl
+    - uart
+    risk: high
+    domains: []
+    error: null
+    dynamic: failed
+  - path: whisparr
+    slug: whisparr
+    name: Whisparr
+    version: 0.6.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - map_rw:addon_config
+    - map_rw:media
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: wireguard
+    slug: wireguard
+    name: WireGuard
+    version: 0.14.0
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - devices
+    - hassio_api
+    - map_rw:ssl
+    - privileged
+    risk: high
+    domains: []
+    error: null
+    dynamic: failed
+  - path: zerotier
+    slug: zerotier
+    name: ZeroTier One
+    version: 0.26.3
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - devices
+    - host_network
+    - map_rw:ssl
+    - privileged
+    risk: high
+    domains: []
+    error: null
+    dynamic: failed
+  - path: zwave-js-ui
+    slug: zwavejs2mqtt
+    name: Z-Wave JS UI
+    version: 7.8.2
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - map_rw:share
+    - uart
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
