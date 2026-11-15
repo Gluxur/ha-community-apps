@@ -1,2 +1,130 @@
 repository: music-assistant/home-assistant-addon
 added_by: catalog
+status: approved
+reviewed:
+  by: Gluxur
+  at: '2026-11-15'
+  commit: 96cb972985a9620ce39f10dff118e293f7ab6c39
+scan:
+  commit: 96cb972985a9620ce39f10dff118e293f7ab6c39
+  at: '2026-11-15T17:16:54Z'
+  apps:
+  - path: local_audio
+    slug: local_audio
+    name: Local Audio
+    version: 0.2.0
+    arch:
+    - amd64
+    - aarch64
+    image: prebuilt
+    permissions:
+    - host_network
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: music_assistant
+    slug: music_assistant
+    name: Music Assistant
+    version: 2.10.12
+    arch:
+    - amd64
+    - aarch64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - hassio_role:manager
+    - homeassistant_api
+    - host_network
+    - map_rw:media
+    - privileged
+    risk: high
+    domains:
+    - music-assistant.io
+    error: null
+    dynamic: started
+  - path: music_assistant_beta
+    slug: music_assistant_beta
+    name: Music Assistant (BETA)
+    version: 2.11.0b9
+    arch:
+    - amd64
+    - aarch64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - hassio_role:manager
+    - homeassistant_api
+    - host_network
+    - map_rw:media
+    risk: high
+    domains:
+    - music-assistant.io
+    error: null
+    dynamic: started
+  - path: music_assistant_dev
+    slug: music_assistant_dev
+    name: Music Assistant DEV SERVER
+    version: 2.11.0.dev2026111503
+    arch:
+    - amd64
+    - aarch64
+    image: source
+    permissions:
+    - hassio_api
+    - hassio_role:manager
+    - homeassistant_api
+    - host_network
+    - map_rw:media
+    risk: high
+    domains:
+    - music-assistant.io
+    error: null
+    dynamic: failed
+  - path: music_assistant_nightly
+    slug: music_assistant_nightly
+    name: Music Assistant (NIGHTLY)
+    version: 2.11.0.dev2026111503
+    arch:
+    - amd64
+    - aarch64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - hassio_role:manager
+    - homeassistant_api
+    - host_network
+    - map_rw:media
+    risk: high
+    domains:
+    - music-assistant.io
+    error: null
+    dynamic: started
+  - path: netease_cloud_music_api
+    slug: netease_cloud_music_api
+    name: NetEase Cloud Music API
+    version: 0.1.1
+    arch:
+    - aarch64
+    - amd64
+    image: source
+    permissions: []
+    risk: low
+    domains:
+    - interface.music.163.com
+    - registry.npmjs.org
+    error: null
+    dynamic: started
+  - path: ytm_po_token_generator
+    slug: ytm_po_token_generator
+    name: YT Music PO Token Generator
+    version: 2.0.2
+    arch:
+    - amd64
+    - aarch64
+    image: prebuilt
+    permissions: []
+    risk: medium
+    domains: []
+    error: null
+    dynamic: started
