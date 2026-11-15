@@ -1,0 +1,1 @@
+{"name": "App B", "slug": "app_b", "version": "2.1", "arch": ["amd64"], "full_access": true, "image": "ghcr.io/x/{arch}-b"}

@@ -1,0 +1,5 @@
+name: App A
+slug: app_a
+version: "1.0.0"
+arch: [amd64, aarch64]
+map: ["share"]
