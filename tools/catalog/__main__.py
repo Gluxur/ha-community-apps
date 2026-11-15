@@ -78,14 +78,23 @@ def scan(full_name: str, ref: str | None = None, dynamic: bool = False, only: st
     with tempfile.TemporaryDirectory(prefix="cascan-") as tmp:
         root = Path(tmp) / "repo"
         url = f"https://github.com/{full_name}"
-        if ref:
-            root.mkdir()
-            _git("init", "-q", cwd=root)
-            _git("fetch", "-q", "--depth", "1", url, ref, cwd=root)
-            _git("checkout", "-q", "FETCH_HEAD", cwd=root)
-        else:
-            _git("clone", "-q", "--depth", "1", url, str(root))
-        commit = _git("rev-parse", "HEAD", cwd=root)
+        try:
+            if ref:
+                root.mkdir()
+                _git("init", "-q", cwd=root)
+                _git("fetch", "-q", "--depth", "1", url, ref, cwd=root)
+                _git("checkout", "-q", "FETCH_HEAD", cwd=root)
+            else:
+                _git("clone", "-q", "--depth", "1", url, str(root))
+            commit = _git("rev-parse", "HEAD", cwd=root)
+        except subprocess.CalledProcessError as err:
+            return {
+                "repository": full_name,
+                "commit": "",
+                "at": _now(),
+                "errors": [f"could not fetch {url} (git exit {err.returncode})"],
+                "apps": [],
+            }
         result = scan_repository(root)
         if only:
             result["apps"] = [a for a in result["apps"] if a["slug"] == only]
@@ -189,6 +198,10 @@ def cmd_nightly(args: argparse.Namespace) -> int:
         if head == (entry.get("scan") or {}).get("commit"):
             continue
         result = scan(name, head, args.dynamic)
+        if not result["commit"]:
+            # Fetch failed: keep the recorded scan, tell the reviewer.
+            flagged.append({"repository": name, "file": path.as_posix(), "changes": ["repository unavailable"]})
+            continue
         changes = signal_changes(entry.get("scan") or {}, result)
         if not changes:
             entry["scan"] = _stored_scan(result)

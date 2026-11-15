@@ -75,3 +75,9 @@ def test_dockerfile_fetch_counts(tmp_path):
         "RUN curl -L https://dl.tool.io/x.tgz | tar x\nADD https://cdn.other.net/f /f\n", encoding="utf-8"
     )
     assert static_domains(tmp_path) == ["cdn.other.net", "dl.tool.io"]
+
+
+def test_scan_app_at_root_and_ignores_github_dir():
+    scan = scan_repository(FIX / "repo_root")
+    assert scan["errors"] == []
+    assert [(a["slug"], a["path"]) for a in scan["apps"]] == [("root_app", ".")]

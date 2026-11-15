@@ -65,13 +65,15 @@ def _app_dirs(root: Path) -> list[Path]:
     found: list[Path] = []
 
     def walk(directory: Path, depth: int) -> None:
-        if any((directory / name).is_file() for name in CONFIG_FILES) and directory != root:
+        if any((directory / name).is_file() for name in CONFIG_FILES):
             found.append(directory)
-            return
+            if directory != root:
+                return
         if depth >= MAX_DEPTH:
             return
         for child in sorted(directory.iterdir()):
-            if child.is_dir() and child.name != ".git":
+            # .github holds issue-template config.yml files, not apps.
+            if child.is_dir() and child.name not in (".git", ".github"):
                 walk(child, depth + 1)
 
     walk(root, 0)
@@ -146,10 +148,11 @@ def static_domains(app_dir: Path) -> list[str]:
 
 def scan_app(root: Path, app_dir: Path) -> dict[str, Any]:
     rel = app_dir.relative_to(root).as_posix()
+    default_slug = app_dir.name if app_dir != root else "app"
     app: dict[str, Any] = {
         "path": rel,
-        "slug": app_dir.name,
-        "name": app_dir.name,
+        "slug": default_slug,
+        "name": default_slug,
         "version": None,
         "arch": [],
         "image": "source",
@@ -166,7 +169,7 @@ def scan_app(root: Path, app_dir: Path) -> dict[str, Any]:
     except (ValueError, yaml.YAMLError, OSError) as err:
         app["error"] = f"{config_path.name}: {type(err).__name__}: {err}".splitlines()[0]
         return app
-    app["slug"] = str(config.get("slug") or app_dir.name)
+    app["slug"] = str(config.get("slug") or default_slug)
     app["name"] = str(config.get("name") or app["slug"])
     app["version"] = None if config.get("version") is None else str(config["version"])
     app["arch"] = [str(a) for a in config.get("arch") or []]

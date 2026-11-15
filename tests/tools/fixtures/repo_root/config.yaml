@@ -1,0 +1,4 @@
+name: Root App
+slug: root_app
+version: "1"
+arch: [amd64]
