@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - "catalog/repositories/**"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -34,7 +35,6 @@ jobs:
       - name: Scan and record new entries
         env:
           GH_TOKEN: ${{ github.token }}
-          BEFORE: ${{ github.event.before }}
         run: bash .github/scripts/merge-record.sh
       - run: gh workflow run pages.yml --ref main
         env:

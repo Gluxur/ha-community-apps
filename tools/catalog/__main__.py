@@ -214,6 +214,14 @@ def cmd_nightly(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_pending(args: argparse.Namespace) -> int:
+    """Entry files merged but not yet recorded as reviewed (no status)."""
+    for path in sorted(Path(ENTRY_DIR).glob("*/*.yaml")):
+        if "status" not in load_entry(path):
+            print(path.as_posix())
+    return 0
+
+
 def cmd_build(args: argparse.Namespace) -> int:
     entries = [load_entry(p) for p in sorted(Path(ENTRY_DIR).glob("*/*.yaml"))]
     out = Path(args.out)
@@ -224,7 +232,7 @@ def cmd_build(args: argparse.Namespace) -> int:
 
 def parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="python -m tools.catalog")
-    sub = p.add_subparsers(dest="command", required=True, metavar="{validate,scan,report,apply-review,approve,nightly,build}")
+    sub = p.add_subparsers(dest="command", required=True, metavar="{validate,scan,report,apply-review,approve,nightly,pending,build}")
 
     s = sub.add_parser("validate", help="check a catalog pull request")
     s.add_argument("--author", required=True)
@@ -262,6 +270,9 @@ def parser() -> argparse.ArgumentParser:
     s.add_argument("--dynamic", action="store_true")
     s.add_argument("--flagged-out", required=True)
     s.set_defaults(func=cmd_nightly)
+
+    s = sub.add_parser("pending", help="list merged entries not yet recorded")
+    s.set_defaults(func=cmd_pending)
 
     s = sub.add_parser("build", help="write catalog.json")
     s.add_argument("--out", required=True)
