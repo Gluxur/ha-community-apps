@@ -43,6 +43,15 @@ const time = (value) => {
   return Number.isNaN(t) ? -Infinity : t;
 };
 
+// Raw GitHub URLs of an app's README, then DOCS.md (what the app store shows).
+export function readmeUrls(repo, app) {
+  const path = app?.path;
+  if (typeof path !== "string" || path.split("/").includes("..")) return [];
+  const dir = path === "." || path === "" ? "" : `${path.split("/").map(encodeURIComponent).join("/")}/`;
+  const base = `https://raw.githubusercontent.com/${repo.repository}/HEAD/${dir}`;
+  return [`${base}README.md`, `${base}DOCS.md`];
+}
+
 // rows: [{repo, app}]; repositories without stars or date sort last.
 export function sortRows(rows, mode) {
   const compare = {
@@ -92,6 +101,7 @@ class CommunityAppsPanel extends HTMLElement {
     this._confirming = null; // repository awaiting high-risk confirmation
     this._busy = null;
     this._added = {}; // repository -> {apps:[store slugs]} | {error}
+    this._readmes = {}; // "repo|slug" -> {state: loading|ok|none, text, url}
   }
 
   set hass(hass) {
@@ -199,6 +209,7 @@ class CommunityAppsPanel extends HTMLElement {
         <button class="card app" data-repo="${esc(repo.repository)}" data-slug="${esc(app.slug)}">
           <div class="row"><span class="name">${esc(app.name)}</span>${this._riskChip(app.risk)}</div>
           <div class="repo">${esc(repo.repository)}${app.version ? ` · ${esc(app.version)}` : ""}</div>
+          ${app.description ? `<div class="desc">${esc(app.description)}</div>` : ""}
           ${this._stats(repo) ? `<div class="repo">${this._stats(repo)}</div>` : ""}
           <div class="badges">${this._badges(repo, app)}</div>
         </button>`
@@ -250,6 +261,7 @@ class CommunityAppsPanel extends HTMLElement {
         ${this._stats(repo) ? `<div class="repo">${this._stats(repo)}</div>` : ""}
         <div class="badges">${this._badges(repo, app)}</div>
         ${repo.status === "flagged" ? '<p class="warn">This repository changed since it was reviewed (new permissions, higher risk or new domains). It is back in review; adding it is paused.</p>' : ""}
+        ${app.description ? `<p class="lead">${esc(app.description)}</p>` : ""}
         <h3>What it can do</h3>${perms}
         <h3>Domains contacted</h3>${domains}<p class="hint">${esc(dynamic)} Connections to raw IP addresses are not detected.</p>
         <h3>Review</h3>
@@ -260,7 +272,69 @@ class CommunityAppsPanel extends HTMLElement {
           <a href="https://github.com/Gluxur/ha-community-apps/blob/main/catalog/repositories/${esc(entryPath)}.yaml" target="_blank" rel="noopener noreferrer">Catalog entry</a>
         </p>
         ${this._actions(repo, app)}
+        <h3>README</h3>
+        <div class="readme" id="readme">${this._readmeStatus(repo, app)}</div>
       </div>`;
+  }
+
+  _readmeStatus(repo, app) {
+    const entry = this._readmes[`${repo.repository}|${app.slug}`];
+    if (!entry || entry.state === "loading") return '<p class="hint">Loading the README from GitHub…</p>';
+    if (entry.state === "none") return '<p class="hint">This app has no README.</p>';
+    return `<p class="hint">From <a href="${esc(entry.url)}" target="_blank" rel="noopener noreferrer">GitHub</a>, written by the app's author.</p><div id="readme-body"></div>`;
+  }
+
+  async _loadReadme(repo, app) {
+    const key = `${repo.repository}|${app.slug}`;
+    if (this._readmes[key]) return;
+    this._readmes[key] = { state: "loading" };
+    for (const url of readmeUrls(repo, app)) {
+      try {
+        const resp = await fetch(url, { credentials: "omit" });
+        if (resp.ok) {
+          const text = (await resp.text()).slice(0, 200000);
+          this._readmes[key] = { state: "ok", text, url: url.replace("https://raw.githubusercontent.com/", "https://github.com/").replace("/HEAD/", "/blob/HEAD/") };
+          this._render();
+          return;
+        }
+      } catch (err) {
+        // try the next file
+      }
+    }
+    this._readmes[key] = { state: "none" };
+    this._render();
+  }
+
+  async _ensureMarkdown() {
+    if (customElements.get("ha-markdown") || this._markdownTried) return;
+    this._markdownTried = true;
+    try {
+      // ha-markdown is lazy-loaded by Home Assistant; creating a markdown card loads it.
+      const helpers = await window.loadCardHelpers?.();
+      await helpers?.createCardElement({ type: "markdown", content: "" });
+      await Promise.race([customElements.whenDefined("ha-markdown"), new Promise((r) => setTimeout(r, 3000))]);
+    } catch (err) {
+      // fall back to plain text
+    }
+    if (customElements.get("ha-markdown")) this._render();
+  }
+
+  _mountReadme(repo, app) {
+    const entry = this._readmes[`${repo.repository}|${app.slug}`];
+    const slot = this.shadowRoot.getElementById("readme-body");
+    if (!entry || entry.state !== "ok" || !slot) return;
+    this._ensureMarkdown();
+    if (customElements.get("ha-markdown")) {
+      // Home Assistant's renderer sanitizes the HTML of third-party Markdown.
+      const md = document.createElement("ha-markdown");
+      md.breaks = false;
+      md.content = entry.text;
+      slot.appendChild(md);
+    } else {
+      const pre = document.createElement("pre");
+      pre.textContent = entry.text;
+      slot.appendChild(pre);
+    }
   }
 
   _storeLink(storeSlug, label) {
@@ -335,6 +409,11 @@ class CommunityAppsPanel extends HTMLElement {
         .detail li { margin: 4px 0; overflow-wrap: anywhere; }
         code { font-size: 12px; background: var(--secondary-background-color, rgba(127,127,127,.15)); padding: 1px 4px; border-radius: 4px; }
         .links { display: flex; gap: 16px; }
+        .desc { font-size: 13px; margin-top: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .lead { font-size: 15px; margin: 10px 0 0; }
+        .readme { border-top: 1px solid var(--divider-color); padding-top: 4px; overflow-wrap: anywhere; }
+        .readme pre { white-space: pre-wrap; font-size: 13px; }
+        .readme img { max-width: 100%; }
         a { color: var(--primary-color); }
         .button { display: inline-block; margin-top: 12px; padding: 10px 16px; border-radius: 8px; border: none; background: var(--primary-color); color: var(--text-primary-color, #fff); font: inherit; cursor: pointer; text-decoration: none; }
         .button[disabled] { opacity: .6; cursor: default; }
@@ -400,6 +479,14 @@ class CommunityAppsPanel extends HTMLElement {
       this._confirming = null;
       this._render();
     });
+    if (this._selected) {
+      const repo = (this._data?.repositories || []).find((r) => r.repository === this._selected.repository);
+      const app = repo?.scan?.apps?.find((a) => a.slug === this._selected.slug);
+      if (repo && app) {
+        this._loadReadme(repo, app);
+        this._mountReadme(repo, app);
+      }
+    }
     const current = this._selected?.repository;
     root.getElementById("add")?.addEventListener("click", () => this._add(current, false));
     root.getElementById("confirm-add")?.addEventListener("click", () => this._add(current, true));

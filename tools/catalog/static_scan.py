@@ -155,6 +155,7 @@ def scan_app(root: Path, app_dir: Path) -> dict[str, Any]:
         "path": rel,
         "slug": default_slug,
         "name": default_slug,
+        "description": "",
         "version": None,
         "arch": [],
         "image": "source",
@@ -173,6 +174,7 @@ def scan_app(root: Path, app_dir: Path) -> dict[str, Any]:
         return app
     app["slug"] = str(config.get("slug") or default_slug)
     app["name"] = str(config.get("name") or app["slug"])
+    app["description"] = str(config.get("description") or "")[:300]
     app["version"] = None if config.get("version") is None else str(config["version"])
     app["arch"] = [str(a) for a in config.get("arch") or []]
     app["image"] = "prebuilt" if config.get("image") else "source"

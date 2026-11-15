@@ -42,3 +42,26 @@ def test_sort_by_name_case_insensitive():
 
 def test_sort_by_risk_highest_first():
     assert _sorted("risk") == ["Zeta", "Gamma", "alpha"]
+
+
+def _call(expr):
+    if not shutil.which("node"):
+        pytest.skip("node not installed")
+    script = (
+        "globalThis.HTMLElement = class {}; globalThis.customElements = { define() {}, get() {} };\n"
+        + PANEL.read_text(encoding="utf-8")
+        + f"\nconsole.log(JSON.stringify({expr}));"
+    )
+    out = subprocess.run(["node", "--input-type=module", "-e", script], capture_output=True, text=True, check=True)
+    return json.loads(out.stdout)
+
+
+def test_readme_urls():
+    base = "https://raw.githubusercontent.com/Owner/Repo/HEAD/"
+    assert _call('readmeUrls({repository: "Owner/Repo"}, {path: "nested/app b"})') == [
+        base + "nested/app%20b/README.md",
+        base + "nested/app%20b/DOCS.md",
+    ]
+    assert _call('readmeUrls({repository: "Owner/Repo"}, {path: "."})') == [base + "README.md", base + "DOCS.md"]
+    assert _call('readmeUrls({repository: "Owner/Repo"}, {})') == []
+    assert _call('readmeUrls({repository: "Owner/Repo"}, {path: "../x"})') == []
