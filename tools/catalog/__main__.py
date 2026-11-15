@@ -65,16 +65,32 @@ def remote_head(full_name: str) -> str | None:
     return out.split()[0] if out else None
 
 
-def is_archived(full_name: str) -> bool:
+def _github_repo(full_name: str) -> dict[str, Any] | None:
+    """GitHub API data for a repository, or None when unavailable."""
     request = urllib.request.Request(f"https://api.github.com/repos/{full_name}")
     token = os.environ.get("GITHUB_TOKEN")
     if token:
         request.add_header("Authorization", f"Bearer {token}")
     try:
         with urllib.request.urlopen(request, timeout=30) as resp:
-            return bool(json.load(resp).get("archived"))
+            data = json.loads(resp.read())
     except (urllib.error.URLError, ValueError, TimeoutError):
-        return False
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def is_archived(full_name: str) -> bool:
+    return bool((_github_repo(full_name) or {}).get("archived"))
+
+
+def fetch_stats(names: list[str]) -> dict[str, dict[str, Any]]:
+    """GitHub stars and last push per repository; failures are left out."""
+    stats: dict[str, dict[str, Any]] = {}
+    for name in names:
+        data = _github_repo(name)
+        if data is not None:
+            stats[name] = {"stars": int(data.get("stargazers_count") or 0), "updated_at": data.get("pushed_at")}
+    return stats
 
 
 def scan(
@@ -240,7 +256,9 @@ def cmd_build(args: argparse.Namespace) -> int:
     entries = [load_entry(p) for p in sorted(Path(ENTRY_DIR).glob("*/*.yaml"))]
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(build_catalog(entries, datetime.now(timezone.utc)), indent=2), encoding="utf-8")
+    public = [e["repository"] for e in entries if e.get("status") in ("approved", "flagged")]
+    catalog = build_catalog(entries, datetime.now(timezone.utc), fetch_stats(public))
+    out.write_text(json.dumps(catalog, indent=2), encoding="utf-8")
     return 0
 
 

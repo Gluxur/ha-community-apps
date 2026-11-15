@@ -25,3 +25,16 @@ def test_build_filters_and_shapes():
     assert repos[1] == {"repository": "m/removed", "status": "removed", "removed_reason": "asked by author"}
     assert repos[2]["added_by"] == "catalog"
     assert "path" not in repos[2]["scan"]["apps"][0]
+
+
+def test_build_adds_repository_stats():
+    entries = [
+        {"repository": "a/one", "status": "approved", "reviewed": REVIEWED, "scan": SCAN},
+        {"repository": "b/two", "status": "approved", "reviewed": REVIEWED, "scan": SCAN},
+        {"repository": "c/gone", "status": "removed", "removed_reason": "r"},
+    ]
+    stats = {"a/one": {"stars": 42, "updated_at": "2026-11-10T08:00:00Z"}, "c/gone": {"stars": 1, "updated_at": "x"}}
+    repos = build_catalog(entries, datetime(2026, 11, 15, tzinfo=timezone.utc), stats)["repositories"]
+    assert repos[0]["stars"] == 42 and repos[0]["updated_at"] == "2026-11-10T08:00:00Z"
+    assert "stars" not in repos[1] and "updated_at" not in repos[1]
+    assert set(repos[2]) == {"repository", "status", "removed_reason"}

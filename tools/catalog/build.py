@@ -16,7 +16,12 @@ def _public_scan(scan: dict[str, Any] | None) -> dict[str, Any] | None:
     return {**scan, "apps": apps}
 
 
-def build_catalog(entries: list[dict[str, Any]], now: datetime) -> dict[str, Any]:
+def build_catalog(
+    entries: list[dict[str, Any]],
+    now: datetime,
+    stats: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Public catalog; `stats` adds GitHub stars and last activity per repository."""
     repositories: list[dict[str, Any]] = []
     for entry in entries:
         status = entry.get("status")
@@ -28,6 +33,7 @@ def build_catalog(entries: list[dict[str, Any]], now: datetime) -> dict[str, Any
                     "status": status,
                     "reviewed": entry.get("reviewed"),
                     "scan": _public_scan(entry.get("scan")),
+                    **{k: v for k, v in (stats or {}).get(entry["repository"], {}).items() if k in ("stars", "updated_at")},
                 }
             )
         elif status == "removed":
