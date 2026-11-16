@@ -6,8 +6,8 @@ reviewed:
   at: '2026-11-15'
   commit: aa96294668480dace9a9a01fdd80dd8bdc556111
 scan:
-  commit: aa96294668480dace9a9a01fdd80dd8bdc556111
-  at: '2026-11-15T18:28:21Z'
+  commit: 74f9f6b7df76f692e5b9a7407ef8e62b0e9d006f
+  at: '2026-11-16T11:47:02Z'
   apps:
   - path: homeassistant-time-machine
     slug: homeassistant-time-machine
