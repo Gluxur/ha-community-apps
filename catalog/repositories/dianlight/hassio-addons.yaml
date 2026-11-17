@@ -6,8 +6,8 @@ reviewed:
   at: '2026-11-15'
   commit: 94aede424129fa273ac54086600e9a02b0626d83
 scan:
-  commit: 94aede424129fa273ac54086600e9a02b0626d83
-  at: '2026-11-15T17:40:22Z'
+  commit: e1f2b8277865b9b34978d663d0dd1aa4d0da490b
+  at: '2026-11-17T11:31:38Z'
   apps:
   - path: RPiMySensor
     slug: rpi-mysensor-gw
