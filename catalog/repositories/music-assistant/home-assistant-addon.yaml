@@ -6,8 +6,8 @@ reviewed:
   at: '2026-11-15'
   commit: 96cb972985a9620ce39f10dff118e293f7ab6c39
 scan:
-  commit: d322bce4b88cb2365594b101dfbae16ac111d4d7
-  at: '2026-11-16T11:43:43Z'
+  commit: dd90ace724ac442a090c95e4e1b7ec51332f6e64
+  at: '2026-11-17T11:49:04Z'
   apps:
   - path: local_audio
     slug: local_audio
@@ -71,7 +71,7 @@ scan:
     slug: music_assistant_dev
     name: Music Assistant DEV SERVER
     description: Development App for Music Assistant. For developers only.
-    version: 2.11.0.dev2026111603
+    version: 2.11.0.dev2026111703
     arch:
     - amd64
     - aarch64
@@ -94,7 +94,7 @@ scan:
       to keep up with the latest bleeding edge development of Music Assistant! Use
       it at your own risk, it might not be recommended for daily/production use because
       it can be unstable.
-    version: 2.11.0.dev2026111603
+    version: 2.11.0.dev2026111703
     arch:
     - amd64
     - aarch64
