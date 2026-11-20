@@ -1,2 +1,177 @@
 repository: AlexxIT/hassio-addons
 added_by: catalog
+status: approved
+reviewed:
+  by: Gluxur
+  at: '2026-11-20'
+  commit: cf02e9eceb86802bf748b9cfb789cd77b6676ef6
+scan:
+  commit: cf02e9eceb86802bf748b9cfb789cd77b6676ef6
+  at: '2026-11-20T21:13:16Z'
+  apps:
+  - path: go2rtc
+    slug: go2rtc
+    name: go2rtc
+    description: Default version for regular user. Transcoding for Intel (VAAPI) and
+      Raspberry (V4L2)
+    version: 1.9.15
+    arch:
+    - amd64
+    - aarch64
+    - i386
+    - armv7
+    image: prebuilt
+    permissions:
+    - homeassistant_api
+    - host_network
+    - map_rw:config
+    risk: medium
+    domains: []
+    error: null
+    dynamic: started
+  - path: go2rtc-dev
+    slug: go2rtc-dev
+    name: go2rtc (dev)
+    description: Dev version for advanced beta testers. Experimental features, for
+      testing potential updates
+    version: dev
+    arch:
+    - amd64
+    - aarch64
+    - i386
+    - armv7
+    image: prebuilt
+    permissions:
+    - homeassistant_api
+    - host_network
+    - map_rw:config
+    risk: medium
+    domains: []
+    error: null
+    dynamic: started
+  - path: go2rtc-hardware
+    slug: go2rtc-hardware
+    name: go2rtc (hardware)
+    description: Hardware version for advanced user. Transcoding for Intel (VAAPI/QSV),
+      AMD (VAAPI) and NVidia (CUDA)
+    version: 1.9.14-hardware
+    arch:
+    - amd64
+    image: prebuilt
+    permissions:
+    - full_access
+    - homeassistant_api
+    - host_network
+    - map_rw:config
+    risk: high
+    domains: []
+    error: null
+    dynamic: started
+  - path: go2rtc-master
+    slug: go2rtc-master
+    name: go2rtc (master)
+    description: Master version for beta testers. The latest (and possibly unstable)
+      changes that will be included in the next release
+    version: master
+    arch:
+    - amd64
+    - aarch64
+    - i386
+    - armv7
+    image: prebuilt
+    permissions:
+    - homeassistant_api
+    - host_network
+    - map_rw:config
+    risk: medium
+    domains: []
+    error: null
+    dynamic: started
+  - path: go2rtc-rockchip
+    slug: go2rtc-rockchip
+    name: go2rtc (rockchip)
+    description: Rockchip version for advanced user. Transcoding for Rockchip
+    version: 1.9.14-rockchip
+    arch:
+    - aarch64
+    image: prebuilt
+    permissions:
+    - homeassistant_api
+    - host_network
+    - map_rw:config
+    risk: medium
+    domains: []
+    error: null
+    dynamic: skipped
+  - path: pnproxy-master
+    slug: pnproxy-master
+    name: pnproxy (master)
+    description: The latest unstable version
+    version: master
+    arch:
+    - amd64
+    - aarch64
+    - i386
+    - armv7
+    image: prebuilt
+    permissions:
+    - host_network
+    risk: medium
+    domains: []
+    error: null
+    dynamic: started
+  - path: scaleconnect
+    slug: scaleconnect
+    name: Smart Scale Connect
+    description: Application for synchronizing smart scale data between different
+      ecosystems
+    version: 0.4.2
+    arch:
+    - amd64
+    - aarch64
+    - i386
+    - armv7
+    - armhf
+    image: prebuilt
+    permissions:
+    - map_rw:config
+    risk: medium
+    domains: []
+    error: null
+    dynamic: started
+  - path: scaleconnect-master
+    slug: scaleconnect-master
+    name: Smart Scale Connect (master)
+    description: The latest unstable version
+    version: master
+    arch:
+    - amd64
+    - aarch64
+    - i386
+    - armv7
+    - armhf
+    image: prebuilt
+    permissions:
+    - map_rw:config
+    risk: medium
+    domains: []
+    error: null
+    dynamic: started
+  - path: ssh_tunnel
+    slug: ssh_tunnel
+    name: SSH Tunnel
+    description: Create SSH tunnel to public server
+    version: 1.0.6
+    arch:
+    - amd64
+    - aarch64
+    - i386
+    - armv7
+    - armhf
+    image: source
+    permissions:
+    - host_network
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
