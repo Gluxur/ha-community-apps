@@ -1,2 +1,227 @@
 repository: rhasspy/hassio-addons
 added_by: catalog
+status: approved
+reviewed:
+  by: Gluxur
+  at: '2026-11-20'
+  commit: 77d15160c51196ada10f7e4144f17b3666524e25
+scan:
+  commit: 77d15160c51196ada10f7e4144f17b3666524e25
+  at: '2026-11-20T21:47:45Z'
+  apps:
+  - path: assist_microphone
+    slug: assist_microphone
+    name: Assist Microphone
+    description: Stream microphone audio to Assist
+    version: 2.2.3
+    arch:
+    - amd64
+    - aarch64
+    image: source
+    permissions:
+    - hassio_api
+    - homeassistant_api
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: microwakeword
+    slug: microwakeword
+    name: microwakeword
+    description: microWakeWord using the Wyoming protocol
+    version: 2.1.0
+    arch:
+    - amd64
+    - aarch64
+    image: source
+    permissions:
+    - map_rw:share
+    risk: medium
+    domains:
+    - www.piwheels.org
+    error: null
+    dynamic: started
+  - path: porcupine1
+    slug: porcupine1
+    name: porcupine1
+    description: porcupine1 using the Wyoming protocol
+    version: 1.2.0
+    arch:
+    - amd64
+    - aarch64
+    - armv7
+    image: source
+    permissions: []
+    risk: low
+    domains:
+    - www.piwheels.org
+    error: null
+    dynamic: started
+  - path: rhasspy
+    slug: rhasspy
+    name: Rhasspy Assistant
+    description: Offline voice assistant for Home Assistant
+    version: 2.5.11
+    arch:
+    - aarch64
+    - amd64
+    - armhf
+    image: source
+    permissions:
+    - homeassistant_api
+    - map_rw:share
+    risk: medium
+    domains:
+    - creativecommons.org
+    - purl.org
+    - sodipodi.sourceforge.net
+    - www.inkscape.org
+    error: null
+    dynamic: failed
+  - path: rhasspy-junior
+    slug: rhasspy_junior
+    name: Rhasspy Junior
+    description: Simplified voice control for Home Assistant
+    version: 0.2.2
+    arch:
+    - aarch64
+    - amd64
+    image: source
+    permissions:
+    - homeassistant_api
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: rhasspy-speech
+    slug: rhasspy-speech
+    name: rhasspy-speech
+    description: Speech-to-text system from Rhasspy
+    version: 2.0.4
+    arch:
+    - amd64
+    - aarch64
+    image: source
+    permissions:
+    - homeassistant_api
+    - map_rw:share
+    risk: medium
+    domains:
+    - arxiv.org
+    - bugs.webkit.org
+    - codepen.io
+    - developer.mozilla.org
+    - en.wikipedia.org
+    - getbootstrap.com
+    - goo.gl
+    - html.spec.whatwg.org
+    - huggingface.co
+    - kittygiraudel.com
+    - popper.js.org
+    - primer.github.io
+    - rtlcss.com
+    - rtlstyling.com
+    - stackoverflow.com
+    - www.a11yproject.com
+    - www.charistheo.io
+    - www.quirksmode.org
+    error: null
+    dynamic: started
+  - path: rhasspy3-en
+    slug: rhasspy3_en
+    name: Rhasspy 3 (en)
+    description: Rhasspy 3 HTTP server (en)
+    version: 0.0.4
+    arch:
+    - amd64
+    - aarch64
+    image: source
+    permissions:
+    - homeassistant_api
+    risk: medium
+    domains: []
+    error: null
+    dynamic: started
+  - path: snowboy
+    slug: snowboy
+    name: snowboy
+    description: snowboy wake word detection using the Wyoming protocol
+    version: 1.2.1
+    arch:
+    - amd64
+    - aarch64
+    - armv7
+    image: source
+    permissions:
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
+  - path: stt-fallback
+    slug: stt-fallback
+    name: stt-fallback
+    description: Speech-to-text fallback
+    version: 1.0.1
+    arch:
+    - amd64
+    - aarch64
+    image: source
+    permissions:
+    - homeassistant_api
+    risk: medium
+    domains: []
+    error: null
+    dynamic: started
+  - path: voicekit-fpc
+    slug: voicekit_fpc
+    name: Voice Kit FPC
+    description: Voice Kit False Positive Collector
+    version: 0.0.1
+    arch:
+    - amd64
+    - aarch64
+    - armv7
+    image: source
+    permissions:
+    - map_rw:share
+    risk: medium
+    domains: []
+    error: null
+    dynamic: started
+  - path: vosk
+    slug: vosk
+    name: vosk
+    description: vosk using the Wyoming protocol
+    version: 1.6.1
+    arch:
+    - amd64
+    - aarch64
+    - armv7
+    image: source
+    permissions:
+    - map_rw:share
+    risk: medium
+    domains:
+    - www.piwheels.org
+    error: null
+    dynamic: failed
+  - path: whisper.cpp
+    slug: whisper.cpp
+    name: whisper.cpp
+    description: whisper.cpp using the Wyoming protocol
+    version: 1.1.0
+    arch:
+    - amd64
+    - aarch64
+    - armv7
+    image: source
+    permissions:
+    - map_rw:share
+    risk: medium
+    domains:
+    - www.piwheels.org
+    error: null
+    dynamic: failed
