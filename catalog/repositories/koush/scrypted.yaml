@@ -1,2 +1,57 @@
 repository: koush/scrypted
 added_by: catalog
+status: approved
+reviewed:
+  by: Gluxur
+  at: '2026-11-20'
+  commit: 568b18e7aa679f8d4d565b1d5b5e1546680909e5
+scan:
+  commit: 568b18e7aa679f8d4d565b1d5b5e1546680909e5
+  at: '2026-11-20T20:50:41Z'
+  apps:
+  - path: install
+    slug: scrypted
+    name: Scrypted
+    description: Scrypted is a high performance home video integration and automation
+      platform
+    version: v0.147.0-noble-full
+    arch:
+    - amd64
+    - aarch64
+    image: prebuilt
+    permissions:
+    - devices
+    - gpio
+    - hassio_api
+    - homeassistant_api
+    - host_network
+    - map_rw:config
+    - map_rw:media
+    - map_rw:share
+    - uart
+    - usb
+    risk: medium
+    domains:
+    - amdgpu-install.readthedocs.io
+    - apt.repos.intel.com
+    - chocolatey.org
+    - deb.nodesource.com
+    - developer.apple.com
+    - developer.download.nvidia.com
+    - developer.nvidia.com
+    - dl.cloudsmith.io
+    - docs.nvidia.com
+    - docs.scrypted.app
+    - get.docker.com
+    - go.dev
+    - nodejs.org
+    - nvidia.github.io
+    - packagecloud.io
+    - registry.npmjs.org
+    - repo.radeon.com
+    - repositories.intel.com
+    - wiki.nftables.org
+    - www.apple.com
+    - www.random.org
+    error: null
+    dynamic: started
