@@ -1,2 +1,107 @@
 repository: wmbusmeters/wmbusmeters-ha-addon
 added_by: catalog
+status: approved
+reviewed:
+  by: Gluxur
+  at: '2026-11-20'
+  commit: 9adc540078f2611ad8589286c82bee4491dda359
+scan:
+  commit: 9adc540078f2611ad8589286c82bee4491dda359
+  at: '2026-11-20T21:53:06Z'
+  apps:
+  - path: wmbusmeters-ha-addon
+    slug: wmbusmeters-ha-addon
+    name: Wmbusmeters (W-MBus to MQTT)
+    description: Acquire utility meter readings using the wireless mbus protocol (WMBUS)
+    version: 3.1.1
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - devices
+    - homeassistant_api
+    - map_rw:config
+    - map_rw:share
+    - uart
+    - usb
+    risk: medium
+    domains:
+    - 127.0.0.1
+    - api.github.com
+    - cdnjs.cloudflare.com
+    - dep.debian.net
+    - getbootstrap.com
+    - java.sun.com
+    - msdn.microsoft.com
+    - octopress.org
+    - popper.js.org
+    - www.apple.com
+    - www.erlang.org
+    - www.example.com
+    error: null
+    dynamic: failed
+  - path: wmbusmeters-ha-addon-edge
+    slug: wmbusmeters-ha-addon-edge
+    name: '[edge] Wmbusmeters (W-MBus to MQTT)'
+    description: Acquire utility meter readings using the wireless mbus protocol (WMBUS)
+    version: 3.1.1.55
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - devices
+    - homeassistant_api
+    - map_rw:config
+    - map_rw:share
+    - uart
+    - usb
+    risk: medium
+    domains:
+    - 127.0.0.1
+    - api.github.com
+    - cdnjs.cloudflare.com
+    - dep.debian.net
+    - getbootstrap.com
+    - java.sun.com
+    - msdn.microsoft.com
+    - octopress.org
+    - popper.js.org
+    - www.apple.com
+    - www.erlang.org
+    - www.example.com
+    error: null
+    dynamic: failed
+  - path: wmbusmeters-ha-addon-test
+    slug: wmbusmeters-ha-addon-test
+    name: '[test] Wmbusmeters (W-MBus to MQTT)'
+    description: Acquire utility meter readings using the wireless mbus protocol (WMBUS)
+    version: 3.1.1.55
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - devices
+    - homeassistant_api
+    - map_rw:config
+    - map_rw:share
+    - uart
+    - usb
+    risk: medium
+    domains:
+    - 127.0.0.1
+    - api.github.com
+    - cdnjs.cloudflare.com
+    - dep.debian.net
+    - getbootstrap.com
+    - java.sun.com
+    - msdn.microsoft.com
+    - octopress.org
+    - popper.js.org
+    - www.apple.com
+    - www.erlang.org
+    - www.example.com
+    error: null
+    dynamic: failed
