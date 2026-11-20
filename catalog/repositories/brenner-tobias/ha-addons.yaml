@@ -1,2 +1,28 @@
 repository: brenner-tobias/ha-addons
 added_by: catalog
+status: approved
+reviewed:
+  by: Gluxur
+  at: '2026-11-20'
+  commit: 0c7740e9fabd05bf26770b507f0cff5a8958d8ba
+scan:
+  commit: 0c7740e9fabd05bf26770b507f0cff5a8958d8ba
+  at: '2026-11-20T21:13:31Z'
+  apps:
+  - path: cloudflared
+    slug: cloudflared
+    name: Cloudflared
+    description: Use a Cloudflare Tunnel to remotely connect to Home Assistant without
+      opening any ports
+    version: 7.0.22
+    arch:
+    - aarch64
+    - amd64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - map_rw:app_config
+    risk: medium
+    domains: []
+    error: null
+    dynamic: failed
