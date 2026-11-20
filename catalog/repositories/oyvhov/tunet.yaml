@@ -1,2 +1,26 @@
 repository: oyvhov/Tunet
 added_by: catalog
+status: approved
+reviewed:
+  by: Gluxur
+  at: '2026-11-20'
+  commit: bf564f8be8e456ba9a60edb5a3ced47eb6b397cf
+scan:
+  commit: bf564f8be8e456ba9a60edb5a3ced47eb6b397cf
+  at: '2026-11-20T21:24:20Z'
+  apps:
+  - path: hassio-addon
+    slug: tunet
+    name: Tunet
+    description: A modern, responsive dashboard for Home Assistant
+    version: 2.1.0
+    arch:
+    - aarch64
+    - amd64
+    image: source
+    permissions: []
+    risk: low
+    domains:
+    - codeload.github.com
+    error: null
+    dynamic: failed
