@@ -1,2 +1,50 @@
 repository: t0mer/broadlinkmanager-docker
 added_by: catalog
+status: approved
+reviewed:
+  by: Gluxur
+  at: '2026-11-20'
+  commit: 76b9d29d9e6ab19c5a57749b8e5fb479641159a3
+scan:
+  commit: 76b9d29d9e6ab19c5a57749b8e5fb479641159a3
+  at: '2026-11-20T21:48:05Z'
+  apps:
+  - path: .
+    slug: broadlink_manager
+    name: Broadlink Manager
+    description: Easely learn and send IR/RF Command
+    version: 5.8.4
+    arch:
+    - aarch64
+    - amd64
+    - armhf
+    - armv7
+    image: source
+    permissions:
+    - host_network
+    risk: medium
+    domains:
+    - adminlte.io
+    - analytics.techblog.co.il
+    - avatars0.githubusercontent.com
+    - avatars2.githubusercontent.com
+    - cdn.datatables.net
+    - cdn.jsdelivr.net
+    - cdnjs.cloudflare.com
+    - clipboardjs.com
+    - code.ionicframework.com
+    - code.jquery.com
+    - energenie4u.co.uk
+    - eslint.org
+    - flask.palletsprojects.com
+    - fonts.googleapis.com
+    - getbootstrap.com
+    - maxcdn.bootstrapcdn.com
+    - opencollective.com
+    - registry.npmjs.org
+    - tidelift.com
+    - www.googletagmanager.com
+    - www.paypal.com
+    - www.paypalobjects.com
+    error: null
+    dynamic: failed
