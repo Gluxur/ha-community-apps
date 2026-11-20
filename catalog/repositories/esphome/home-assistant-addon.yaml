@@ -1,2 +1,69 @@
 repository: esphome/home-assistant-addon
 added_by: catalog
+status: approved
+reviewed:
+  by: Gluxur
+  at: '2026-11-20'
+  commit: 9c187ef86a98abb54239a9f6b1ed38d3b0da4abe
+scan:
+  commit: 9c187ef86a98abb54239a9f6b1ed38d3b0da4abe
+  at: '2026-11-20T21:14:24Z'
+  apps:
+  - path: esphome
+    slug: esphome
+    name: ESPHome Device Builder
+    description: Build your own smart home devices using ESPHome, no programming experience
+      required
+    version: 2026.11.0
+    arch:
+    - amd64
+    - aarch64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - host_network
+    - map_rw:config
+    - uart
+    risk: medium
+    domains:
+    - esphome.io
+    error: null
+    dynamic: failed
+  - path: esphome-beta
+    slug: esphome-beta
+    name: ESPHome Device Builder (beta)
+    description: Beta version of ESPHome Device Builder
+    version: 2026.11.0
+    arch:
+    - amd64
+    - aarch64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - host_network
+    - map_rw:config
+    - uart
+    risk: medium
+    domains:
+    - beta.esphome.io
+    error: null
+    dynamic: failed
+  - path: esphome-dev
+    slug: esphome-dev
+    name: ESPHome Device Builder (dev)
+    description: Development version of ESPHome Device Builder
+    version: 2026.12.0-dev20261120
+    arch:
+    - amd64
+    - aarch64
+    image: prebuilt
+    permissions:
+    - hassio_api
+    - host_network
+    - map_rw:config
+    - uart
+    risk: medium
+    domains:
+    - next.esphome.io
+    error: null
+    dynamic: failed
