@@ -1,2 +1,30 @@
 repository: Luligu/matterbridge-home-assistant-addon
 added_by: catalog
+status: approved
+reviewed:
+  by: Gluxur
+  at: '2026-11-20'
+  commit: 8c2a6c5a196b99b27b08f7138c4a742b07731689
+scan:
+  commit: 8c2a6c5a196b99b27b08f7138c4a742b07731689
+  at: '2026-11-20T21:24:06Z'
+  apps:
+  - path: .
+    slug: matterbridge
+    name: Matterbridge
+    description: Matterbridge Home Assistant Application
+    version: 2026.11.3
+    arch:
+    - amd64
+    - aarch64
+    image: prebuilt
+    permissions:
+    - host_network
+    - map_rw:app_config
+    - map_rw:local_apps
+    risk: medium
+    domains:
+    - registry.npmjs.org
+    - www.buymeacoffee.com
+    error: null
+    dynamic: started
