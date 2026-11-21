@@ -6,15 +6,15 @@ reviewed:
   at: '2026-11-15'
   commit: 96cb972985a9620ce39f10dff118e293f7ab6c39
 scan:
-  commit: ff4542adc650f5161ff25588def50b7d325c166a
-  at: '2026-11-20T11:14:11Z'
+  commit: 9f13a17e810277a4cfc0aece5d6bcb7a3c943373
+  at: '2026-11-21T11:07:54Z'
   apps:
   - path: local_audio
     slug: local_audio
     name: Local Audio
     description: Turns this Home Assistant system into a synchronized Sendspin player
       for Music Assistant, playing to speakers or a USB DAC attached to it.
-    version: 0.2.0
+    version: 0.3.0
     arch:
     - amd64
     - aarch64
@@ -30,7 +30,7 @@ scan:
     name: Music Assistant
     description: The Music Assistant server is a free, opensource Media library manager
       that connects to your streaming services and a wide range of connected speakers.
-    version: 2.10.12
+    version: 2.10.13
     arch:
     - amd64
     - aarch64
@@ -51,7 +51,7 @@ scan:
     slug: music_assistant_beta
     name: Music Assistant (BETA)
     description: BETA version of the Music Assistant Server.
-    version: 2.11.0b9
+    version: 2.11.0b10
     arch:
     - amd64
     - aarch64
@@ -71,7 +71,7 @@ scan:
     slug: music_assistant_dev
     name: Music Assistant DEV SERVER
     description: Development App for Music Assistant. For developers only.
-    version: 2.11.0.dev2026112003
+    version: 2.11.0.dev2026112103
     arch:
     - amd64
     - aarch64
@@ -94,7 +94,7 @@ scan:
       to keep up with the latest bleeding edge development of Music Assistant! Use
       it at your own risk, it might not be recommended for daily/production use because
       it can be unstable.
-    version: 2.11.0.dev2026112003
+    version: 2.11.0.dev2026112103
     arch:
     - amd64
     - aarch64
