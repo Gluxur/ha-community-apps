@@ -6,14 +6,14 @@ reviewed:
   at: '2026-11-15'
   commit: aa96294668480dace9a9a01fdd80dd8bdc556111
 scan:
-  commit: 74f9f6b7df76f692e5b9a7407ef8e62b0e9d006f
-  at: '2026-11-16T11:47:02Z'
+  commit: dc67e83cef11ecec6c8d08e515bbfbc87d897c1b
+  at: '2026-11-22T11:13:05Z'
   apps:
   - path: homeassistant-time-machine
     slug: homeassistant-time-machine
     name: Home Assistant Time Machine
     description: Browse and restore Home Assistant configuration backups
-    version: 2.4.3
+    version: 2.5.0
     arch:
     - amd64
     - aarch64
