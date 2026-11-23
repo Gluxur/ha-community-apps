@@ -6,8 +6,8 @@ reviewed:
   at: '2026-11-20'
   commit: 9c187ef86a98abb54239a9f6b1ed38d3b0da4abe
 scan:
-  commit: 3473a455ac54617f3bb90fd636e87bab1900b66d
-  at: '2026-11-22T10:45:26Z'
+  commit: 1006265c856affaf8187c92be76040819bcc9916
+  at: '2026-11-23T11:51:05Z'
   apps:
   - path: esphome
     slug: esphome
@@ -52,7 +52,7 @@ scan:
     slug: esphome-dev
     name: ESPHome Device Builder (dev)
     description: Development version of ESPHome Device Builder
-    version: 2026.12.0-dev20261122
+    version: 2026.12.0-dev20261123
     arch:
     - amd64
     - aarch64
