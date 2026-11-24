@@ -10,9 +10,7 @@ on:
         type: boolean
         default: false
 
-permissions:
-  contents: write
-  issues: write
+permissions: {}
 
 concurrency:
   group: catalog-write
@@ -21,6 +19,9 @@ concurrency:
 jobs:
   rescan:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # commit rescan results
+      issues: write # flag entries that changed
     timeout-minutes: 340
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -28,7 +29,7 @@ jobs:
           fetch-depth: 0
           # Deploy key allowed to bypass the main ruleset; its pushes also
           # trigger "Publish catalog". Never exposed to pull_request runs.
-          ssh-key: ${{ secrets.CATALOG_DEPLOY_KEY }}
+          ssh-key: ${{ secrets.CATALOG_DEPLOY_KEY }} # zizmor: ignore[artipacked] -- the job pushes with this key
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.13"

@@ -8,9 +8,7 @@ on:
       - "catalog/repositories/**"
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: read
+permissions: {}
 
 concurrency:
   group: catalog-write
@@ -19,6 +17,9 @@ concurrency:
 jobs:
   record:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # commit the review record
+      pull-requests: read # find the merged PR
     timeout-minutes: 350
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -26,7 +27,7 @@ jobs:
           fetch-depth: 0
           # Deploy key allowed to bypass the main ruleset (personal repos cannot
           # let GITHUB_TOKEN bypass it). Never exposed to pull_request runs.
-          ssh-key: ${{ secrets.CATALOG_DEPLOY_KEY }}
+          ssh-key: ${{ secrets.CATALOG_DEPLOY_KEY }} # zizmor: ignore[artipacked] -- the job pushes with this key
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.13"

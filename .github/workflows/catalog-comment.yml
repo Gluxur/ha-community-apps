@@ -6,17 +6,19 @@
 name: Catalog PR comment
 
 on:
-  workflow_run:
+  # Trusted context on purpose: runs main's copy and only reads the artifact as data (see above).
+  workflow_run: # zizmor: ignore[dangerous-triggers]
     workflows: ["Catalog PR"]
     types: [completed]
 
-permissions:
-  actions: read
-  pull-requests: write
+permissions: {}
 
 jobs:
   comment:
     runs-on: ubuntu-latest
+    permissions:
+      actions: read # download the report artifact of the triggering run
+      pull-requests: write # post or update the report comment
     if: github.event.workflow_run.event == 'pull_request'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
