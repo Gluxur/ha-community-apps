@@ -51,6 +51,8 @@ IGNORED_DOMAINS = {
     "www.apache.org",
     "www.gnu.org",
 }
+# Local and reserved names (RFC 2606, RFC 6761): never real destinations.
+_IGNORED_SUFFIXES = (".local", ".example", ".test", ".invalid", ".localhost")
 _SKIP_DIRS = {".git", "docs", "tests", "translations"}
 _SKIP_NAMES = {"icon.png", "logo.png"}
 _URL = re.compile(r"https?://([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+)")
@@ -118,11 +120,11 @@ def risk(perms: list[str], image: str) -> str:
 
 
 def filter_domains(hosts: set[str]) -> list[str]:
-    """Lowercase, drop well-known noise and local names."""
+    """Lowercase, drop well-known noise and local or reserved names."""
     result = set()
     for host in hosts:
         host = host.lower().rstrip(".")
-        if host in IGNORED_DOMAINS or host.endswith(".local") or "." not in host:
+        if host in IGNORED_DOMAINS or host.endswith(_IGNORED_SUFFIXES) or "." not in host:
             continue
         result.add(host)
     return sorted(result)
