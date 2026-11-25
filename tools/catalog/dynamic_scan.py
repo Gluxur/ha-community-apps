@@ -34,12 +34,19 @@ _QUERY = re.compile(r"query\[[A-Z]+\]\s+(\S+)\s+from\s")
 # Supervisor-internal hostnames: outside the Supervisor the resolver appends the
 # host's search domain (supervisor.home, homeassistant.<cloud>.net...).
 _INTERNAL_FIRST_LABELS = {"supervisor", "homeassistant", "hassio"}
+# Search domain of the GitHub-hosted (Azure) runner: the container's own
+# hostname, a container id or "default_server", resolved with it appended.
+_RUNNER_SEARCH_SUFFIXES = (".internal.cloudapp.net",)
+
+
+def _is_noise(name: str) -> bool:
+    name = name.lower().rstrip(".")
+    return name.split(".", 1)[0] in _INTERNAL_FIRST_LABELS or name.endswith(_RUNNER_SEARCH_SUFFIXES)
 
 
 def parse_dnsmasq_log(text: str) -> list[str]:
     """Names queried in a dnsmasq log, noise removed."""
-    names = {n for n in _QUERY.findall(text) if n.lower().split(".", 1)[0] not in _INTERNAL_FIRST_LABELS}
-    return filter_domains(names)
+    return filter_domains({n for n in _QUERY.findall(text) if not _is_noise(n)})
 
 
 def image_for(app_dir: Path, config: dict[str, Any], arch: str = "amd64") -> tuple[str, str] | None:

@@ -70,6 +70,15 @@ def test_domains_ignore_list(tmp_path):
     assert static_domains(tmp_path) == []
 
 
+def test_domains_ignore_reserved_tlds(tmp_path):
+    (tmp_path / "server.js").write_text(
+        "// e.g. http://localhost.attacker.example or https://a.test, https://x.invalid, http://app.localhost\n"
+        "fetch('https://api.real.io/v1')\n",
+        encoding="utf-8",
+    )
+    assert static_domains(tmp_path) == ["api.real.io"]
+
+
 def test_dockerfile_fetch_counts(tmp_path):
     (tmp_path / "Dockerfile").write_text(
         "RUN curl -L https://dl.tool.io/x.tgz | tar x\nADD https://cdn.other.net/f /f\n", encoding="utf-8"

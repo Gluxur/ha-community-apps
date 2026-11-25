@@ -60,3 +60,12 @@ def test_image_for_malformed_build_file(tmp_path):
     assert image_for(tmp_path, {"arch": ["amd64"]}) == ("build", "")
     (tmp_path / "build.yaml").write_text("build_from: [unclosed\n", encoding="utf-8")
     assert image_for(tmp_path, {"arch": ["amd64"]}) == ("build", "")
+
+
+def test_parse_ignores_runner_search_domain():
+    log = (
+        "dnsmasq[1]: query[A] 1c492a540c53.oq3xicayfjpu1o1gnuwmpwcacd.gx.internal.cloudapp.net from 10.0.0.2\n"
+        "dnsmasq[1]: query[A] default_server.oq3xicayfjpu1o1gnuwmpwcacd.gx.internal.cloudapp.net. from 10.0.0.2\n"
+        "dnsmasq[1]: query[A] safebrowsing.brave.com from 10.0.0.2\n"
+    )
+    assert parse_dnsmasq_log(log) == ["safebrowsing.brave.com"]
