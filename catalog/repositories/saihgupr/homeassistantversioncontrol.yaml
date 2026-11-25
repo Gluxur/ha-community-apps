@@ -1,49 +1,11 @@
 repository: saihgupr/HomeAssistantVersionControl
 added_by: catalog
-status: flagged
+status: approved
 reviewed:
   by: Gluxur
-  at: '2026-11-15'
-  commit: a892b9919d8211981feb14fa797863f04e133398
+  at: '2026-11-25'
+  commit: 657c23f9efb0fa9d1c90d2add6bfb69f3ab8250d
 scan:
-  commit: a892b9919d8211981feb14fa797863f04e133398
-  at: '2026-11-15T18:31:40Z'
-  apps:
-  - path: homeassistant-version-control
-    slug: home-assistant-version-control
-    name: Home Assistant Version Control
-    description: Git-powered version control and automated backup for your Home Assistant
-      configuration files.
-    version: 1.6.1
-    arch:
-    - aarch64
-    - amd64
-    - armhf
-    - armv7
-    - i386
-    image: source
-    permissions:
-    - hassio_api
-    - hassio_role:manager
-    - homeassistant_api
-    - map_rw:all_addon_configs
-    - map_rw:config
-    - map_rw:media
-    - map_rw:share
-    risk: high
-    domains:
-    - api.github.com
-    - cdnjs.cloudflare.com
-    - feross.org
-    - git.example.com
-    - ko-fi.com
-    - opencollective.com
-    - paulmillr.com
-    - registry.npmjs.org
-    - www.patreon.com
-    error: null
-    dynamic: started
-pending_scan:
   commit: 657c23f9efb0fa9d1c90d2add6bfb69f3ab8250d
   at: '2026-11-21T11:11:16Z'
   apps:
@@ -75,7 +37,6 @@ pending_scan:
     - feross.org
     - git.example.com
     - ko-fi.com
-    - localhost.attacker.example
     - opencollective.com
     - paulmillr.com
     - registry.npmjs.org
