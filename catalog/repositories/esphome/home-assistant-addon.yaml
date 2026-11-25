@@ -6,15 +6,15 @@ reviewed:
   at: '2026-11-20'
   commit: 9c187ef86a98abb54239a9f6b1ed38d3b0da4abe
 scan:
-  commit: 1c2669e367e179e3869be55ddfc4e38c831909d1
-  at: '2026-11-24T13:19:31Z'
+  commit: d9b49fb87e9271be715d9dfacde8cecabb911cba
+  at: '2026-11-25T12:09:57Z'
   apps:
   - path: esphome
     slug: esphome
     name: ESPHome Device Builder
     description: Build your own smart home devices using ESPHome, no programming experience
       required
-    version: 2026.11.0
+    version: 2026.11.1
     arch:
     - amd64
     - aarch64
@@ -33,7 +33,7 @@ scan:
     slug: esphome-beta
     name: ESPHome Device Builder (beta)
     description: Beta version of ESPHome Device Builder
-    version: 2026.11.0
+    version: 2026.11.1
     arch:
     - amd64
     - aarch64
@@ -52,7 +52,7 @@ scan:
     slug: esphome-dev
     name: ESPHome Device Builder (dev)
     description: Development version of ESPHome Device Builder
-    version: 2026.12.0-dev20261124
+    version: 2026.12.0-dev20261125
     arch:
     - amd64
     - aarch64
