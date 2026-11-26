@@ -6,8 +6,8 @@ reviewed:
   at: '2026-11-15'
   commit: c7657fd01bc83dc2bcdab219d5c5fe04e77ede71
 scan:
-  commit: c7657fd01bc83dc2bcdab219d5c5fe04e77ede71
-  at: '2026-11-15T18:00:10Z'
+  commit: 0b5aea9eef575b632136a69089e57d0cdc066a44
+  at: '2026-11-26T13:12:44Z'
   apps:
   - path: actual-budget
     slug: actual-budget
@@ -1078,7 +1078,7 @@ scan:
     slug: zwavejs2mqtt
     name: Z-Wave JS UI
     description: Fully configurable Z-Wave JS gateway and control panel
-    version: 7.8.2
+    version: 7.9.0
     arch:
     - aarch64
     - amd64
