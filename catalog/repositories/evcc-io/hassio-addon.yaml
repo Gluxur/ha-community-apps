@@ -6,8 +6,8 @@ reviewed:
   at: '2026-11-20'
   commit: 8e29a75256f8ecbac47bde0c257b30a0dfaee0d5
 scan:
-  commit: 06c436877440ff9f8db453ca428271e575f698f8
-  at: '2026-11-25T12:16:14Z'
+  commit: 4c6acf6cfb17131094e4d98332147c077c5028ab
+  at: '2026-11-26T12:51:06Z'
   apps:
   - path: evcc
     slug: evcc
@@ -33,7 +33,7 @@ scan:
     slug: evcc-nightly
     name: evcc (nightly)
     description: Nightly build. smart charging | open source energy management
-    version: nightly.20261125-1b315f6
+    version: nightly.20261126-153353c
     arch:
     - aarch64
     - amd64
