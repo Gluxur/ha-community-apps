@@ -6,14 +6,14 @@ reviewed:
   at: '2026-11-20'
   commit: 8c2a6c5a196b99b27b08f7138c4a742b07731689
 scan:
-  commit: 8c2a6c5a196b99b27b08f7138c4a742b07731689
-  at: '2026-11-20T21:24:06Z'
+  commit: f8a2cbd5fd833914335cf75967245e76d99f4c52
+  at: '2026-11-28T11:38:05Z'
   apps:
   - path: .
     slug: matterbridge
     name: Matterbridge
     description: Matterbridge Home Assistant Application
-    version: 2026.11.3
+    version: 2026.11.4
     arch:
     - amd64
     - aarch64
