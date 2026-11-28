@@ -6,8 +6,8 @@ reviewed:
   at: '2026-11-20'
   commit: 568b18e7aa679f8d4d565b1d5b5e1546680909e5
 scan:
-  commit: 9f7f38b9e004cafca6f7c41c00b0aabcf5ecf6cf
-  at: '2026-11-27T11:58:14Z'
+  commit: 091d777319500a5a9386586eacc1cbc5304481ff
+  at: '2026-11-28T11:34:45Z'
   apps:
   - path: install
     slug: scrypted
